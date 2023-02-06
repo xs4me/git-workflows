@@ -27,7 +27,6 @@ func checkout(c *model.Config) {
 	prerequisites(c)
 
 	api.Clone(c)
-	api.Checkout(c)
 }
 
 func prerequisites(c *model.Config) {

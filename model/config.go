@@ -10,8 +10,9 @@ type Config struct {
 	GitUrl         string `json:"git_url"`
 	Username       string `json:"username"`
 	Email          string `json:"email"`
-
-	Reponame string `json:"reponame"`
+	Reponame       string `json:"reponame"`
+	Branch         string `json:"branch"`
+	Extract        bool   `json:"extract"`
 	//InfraRepoSuffix  string `json:"infrarepo_suffix"`
 	//ImageTagLocation string `json:"image_tag_location"`
 	//
