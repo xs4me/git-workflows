@@ -1,0 +1,21 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          echo "Building..."
+          echo "Done!"
+      - name: Test
+        run: |
+          echo "Testing..."
+          echo "Done!"
+      - name: Deploy
+        run: |
+          echo "Deploying..."
+          echo "Done!"

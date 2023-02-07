@@ -1,10 +1,14 @@
 package cmd
 
 import (
-	"fmt"
+	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(debugCmd)
+}
 
 var debugCmd = &cobra.Command{
 	Use:   "debug",
@@ -17,9 +21,9 @@ var debugCmd = &cobra.Command{
 
 func printConfig(c *model.Config) {
 	if c.Development {
-		fmt.Println("Development mode enabled. Using local configuration.")
+		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
 	}
 
-	fmt.Printf("Config: %+v", Config)
+	logger.Info("Config: %+v", Config)
 }

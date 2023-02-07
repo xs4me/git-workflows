@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"gepaplexx/git-workflows/model"
+	"gepaplexx/git-workflows/utils"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -32,8 +33,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(checkoutCmd)
-	rootCmd.AddCommand(debugCmd)
+
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
 	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out", "base directory for all operations")
@@ -55,5 +55,6 @@ func developmentMode(c *model.Config) {
 	c.Reponame = "demo-microservice"
 	c.Branch = "test"
 	c.Extract = true
-	os.RemoveAll(c.BaseDir)
+	err := os.RemoveAll(c.BaseDir)
+	utils.CheckIfError(err)
 }

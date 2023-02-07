@@ -1,12 +1,16 @@
 package cmd
 
 import (
-	"fmt"
 	"gepaplexx/git-workflows/api"
+	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
 	"os"
 )
+
+func init() {
+	rootCmd.AddCommand(checkoutCmd)
+}
 
 var checkoutCmd = &cobra.Command{
 	Use:   "checkout",
@@ -18,23 +22,25 @@ var checkoutCmd = &cobra.Command{
 
 func checkout(c *model.Config) {
 	if c.Development {
-		fmt.Println("Development mode enabled. Using local configuration.")
+		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
 	}
 
-	fmt.Printf("checkout %s\n", c.GitUrl)
-	fmt.Println("Checking prerequisites...")
+	logger.Info("checkout %s\n", c.GitUrl)
+	logger.Debug("Checking prerequisites...")
 	prerequisites(c)
 
-	api.Clone(c)
+	api.CloneAppRepo(c)
+	api.ExtractGitInformation(c)
 }
 
 func prerequisites(c *model.Config) {
 	if c.GitUrl == "" {
-		fmt.Println("GitUrl is empty. Please provide a valid git url.")
+		logger.Error("GitUrl is empty. Please provide a valid git url.")
 		os.Exit(1)
 	}
 	if c.Reponame == "" {
-		fmt.Println("Repository name is empty. Please provide a valid repository name.")
+		logger.Error("Repository name is empty. Please provide a valid repository name.")
+		os.Exit(1)
 	}
 }
