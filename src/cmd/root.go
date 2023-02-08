@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
 	"os"
@@ -47,17 +48,20 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/root/.ssh/", "directory for ssh known_hosts and private key")
 	rootCmd.PersistentFlags().StringVar(&Config.RepoToken, "token", "", "token to access the repository")
 
-	checkoutCmd.PersistentFlags().BoolVar(&Config.Extract, "extract", false, "Extract Information about the last commiter")
+	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")
+
+	checkoutCmd.PersistentFlags().BoolVar(&Config.Extract, "extract", false, "Extract Information about the last git commit")
 
 }
 
 func developmentMode(c *model.Config) {
-	c.BaseDir = "../tmp/"
+	c.BaseDir = "../tmp"
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
-	c.Branch = "test"
+	c.Branch = "main"
 	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
 	err := os.RemoveAll(c.BaseDir)
+	logger.EnableDebug()
 	utils.CheckIfError(err)
 }

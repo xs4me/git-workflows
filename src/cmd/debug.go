@@ -26,4 +26,5 @@ func printConfig(c *model.Config) {
 	}
 
 	logger.Info("Config: %+v", Config)
+	logger.Info("Application Version: %s", Version)
 }

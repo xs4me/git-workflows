@@ -32,3 +32,7 @@ func Error(format string, args ...interface{}) {
 func Fatal(format string, args ...interface{}) {
 	log.WithField("app", "git-workflows").Fatalf(format, args...)
 }
+
+func EnableDebug() {
+	log.SetLevel(log.DebugLevel)
+}
