@@ -26,9 +26,21 @@ func updateArgo(c *model.Config) {
 		developmentMode(c)
 	}
 	repo := api.CloneRepo(c, false)
-	logger.Debug("%+v", repo)
+	if c.LegacyBehavior {
+		api.UpdateMultiBranch(c, repo)
+	}
+	if !c.LegacyBehavior {
+		api.UpdateMultiDir(c, repo)
+	}
 }
 
 func checkArgoprequesites(c *model.Config) {
+	if c.ImageTag == "" {
+		logger.Fatal("Image tag must be set")
+	}
+
+	if c.Branch == "" {
+		logger.Fatal("Branch must be set")
+	}
 
 }

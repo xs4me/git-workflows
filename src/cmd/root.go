@@ -49,6 +49,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.RepoToken, "token", "", "token to access the repository")
 
 	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")
+	rootCmd.PersistentFlags().StringVar(&Config.ImageTag, "tag", "", "Commit-Hash/Image-Tag for the deployment change")
 
 	checkoutCmd.PersistentFlags().BoolVar(&Config.Extract, "extract", false, "Extract Information about the last git commit")
 
@@ -61,6 +62,7 @@ func developmentMode(c *model.Config) {
 	c.Branch = "main"
 	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
+	c.ImageTag = "abcdefg"
 	err := os.RemoveAll(c.BaseDir)
 	logger.EnableDebug()
 	utils.CheckIfError(err)

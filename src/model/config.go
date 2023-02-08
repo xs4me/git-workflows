@@ -15,6 +15,7 @@ type Config struct {
 	SshConfigDir    string `json:"ssh_dir" `
 	RepoToken       string `json:"repo_token"`
 	InfraRepoSuffix string `json:"infra_repo_suffix"`
+	ImageTag        string `json:"image_tag"`
 }
 
 func (c *Config) ApplicationClonePath() string {

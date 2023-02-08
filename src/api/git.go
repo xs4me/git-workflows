@@ -84,3 +84,14 @@ func checkoutPrerequisites(c *model.Config) {
 		os.Exit(1)
 	}
 }
+
+func checkout(c *model.Config, repo *git.Repository) *git.Worktree {
+	wt, err := repo.Worktree()
+	utils.CheckIfError(err)
+	err = wt.Checkout(&git.CheckoutOptions{
+		Create: false,
+		Branch: plumbing.NewBranchReferenceName(c.Branch),
+	})
+	utils.CheckIfError(err)
+	return wt
+}
