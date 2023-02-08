@@ -12,13 +12,12 @@ import (
 func CloneAppRepo(c *model.Config) {
 	_, err := git.PlainClone(c.ClonePath(), false, &git.CloneOptions{
 		URL:           c.GitUrl,
-		Progress:      os.Stdout,
+		Progress:      nil,
 		Depth:         1,
 		Tags:          0,
 		SingleBranch:  false,
 		ReferenceName: plumbing.NewBranchReferenceName(c.Branch),
-		// TODO: implement SSH Authentication first, then handle password/deployment keys
-		//Auth:
+		Auth:          gitAuthMethod(c),
 	})
 
 	utils.CheckIfError(err)

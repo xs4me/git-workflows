@@ -44,17 +44,20 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&Config.GitUrl, "url", "u", "", "git url for the repository")
 	rootCmd.PersistentFlags().StringVar(&Config.Reponame, "name", "", "name of the repository")
 	rootCmd.PersistentFlags().StringVarP(&Config.Branch, "branch", "b", "main", "branch to checkout")
+	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/root/.ssh/", "directory for ssh known_hosts and private key")
+	rootCmd.PersistentFlags().StringVar(&Config.RepoToken, "token", "", "token to access the repository")
 
 	checkoutCmd.PersistentFlags().BoolVar(&Config.Extract, "extract", false, "Extract Information about the last commiter")
 
 }
 
 func developmentMode(c *model.Config) {
-	c.BaseDir = "./tmp/"
+	c.BaseDir = "../tmp/"
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
 	c.Branch = "test"
 	c.Extract = true
+	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
 	err := os.RemoveAll(c.BaseDir)
 	utils.CheckIfError(err)
 }

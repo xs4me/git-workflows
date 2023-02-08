@@ -30,3 +30,4 @@ target/
 *.lock
 
 git-workflows
+/git_workflows

@@ -12,6 +12,8 @@ type Config struct {
 	Reponame       string `json:"reponame"`
 	Branch         string `json:"branch"`
 	Extract        bool   `json:"extract"`
+	SshConfigDir   string `json:"ssh_dir" `
+	RepoToken      string `json:"repo_token"`
 }
 
 func (c *Config) ClonePath() string {
