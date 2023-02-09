@@ -20,11 +20,12 @@ func init() {
 }
 
 func updateArgo(c *model.Config) {
-	checkArgoprequesites(c)
+
 	if c.Development {
 		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
 	}
+	checkArgoprequesites(c)
 	repo := api.CloneRepo(c, false)
 	if c.LegacyBehavior {
 		api.UpdateMultiBranch(c, repo)

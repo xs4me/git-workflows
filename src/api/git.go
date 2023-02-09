@@ -7,8 +7,10 @@ import (
 	"gepaplexx/git-workflows/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"os"
 	"strings"
+	"time"
 )
 
 func CloneRepo(c *model.Config, appRepo bool) *git.Repository {
@@ -94,4 +96,37 @@ func checkout(c *model.Config, repo *git.Repository) *git.Worktree {
 	})
 	utils.CheckIfError(err)
 	return wt
+}
+
+func commitAndPush(c *model.Config, wt *git.Worktree, repo *git.Repository, message string) {
+	commit(c, wt, message)
+	push(c, repo)
+}
+
+func commit(c *model.Config, wt *git.Worktree, message string) {
+	logger.Debug("Committing changes")
+	err := wt.AddWithOptions(&git.AddOptions{
+		All: true,
+	})
+	utils.CheckIfError(err)
+	_, err = wt.Commit(message, &git.CommitOptions{
+		Committer: &object.Signature{
+			Name:  c.Username,
+			Email: c.Email,
+			When:  time.Now(),
+		},
+	})
+	utils.CheckIfError(err)
+}
+
+func push(c *model.Config, repo *git.Repository) {
+	if c.IsPushEnabled() {
+		logger.Info("Pushing changes to remote repository")
+		err := repo.Push(&git.PushOptions{
+			Auth: gitAuthMethod(c),
+		})
+		utils.CheckIfError(err)
+	} else {
+		logger.Debug("Development mode is enabled. Skipping push to remote repository")
+	}
 }

@@ -37,7 +37,7 @@ func init() {
 
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
-	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out/", "base directory for all operations")
+	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out", "base directory for all operations")
 	rootCmd.PersistentFlags().BoolVarP(&Config.LegacyBehavior, "legacy", "l", false, "use legacy behavior")
 	rootCmd.PersistentFlags().StringVar(&Config.Username, "commit-user", "argo-ci", "username for git operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Email, "commit-email", "argo-ci@geaprdec.com", "email for git operations")
@@ -50,11 +50,13 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")
 	rootCmd.PersistentFlags().StringVar(&Config.ImageTag, "tag", "", "Commit-Hash/Image-Tag for the deployment change")
+	rootCmd.PersistentFlags().StringVar(&Config.TagLocation, "image-tag-location", "", "Location of image-tag in the infrastructure repository")
+	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "test", "qa", "prod"}, "deployment stages")
 
 }
 
 func developmentMode(c *model.Config) {
-	c.BaseDir = "../tmp/"
+	c.BaseDir = "../tmp"
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
 	c.Branch = "main"
