@@ -16,3 +16,7 @@ func UpdateMultiDir(c *model.Config, repo *git.Repository) {
 	_ = checkout(c, repo)
 
 }
+
+func UpdateMultiBranch(c *model.Config, repo *git.Repository) {
+	logger.Fatal("Not implemented yet")
+}
