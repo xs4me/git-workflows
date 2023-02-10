@@ -51,7 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")
 	rootCmd.PersistentFlags().StringVar(&Config.ImageTag, "tag", "", "Commit-Hash/Image-Tag for the deployment change")
 	rootCmd.PersistentFlags().StringVar(&Config.TagLocation, "image-tag-location", "", "Location of image-tag in the infrastructure repository")
-	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "test", "qa", "prod"}, "deployment stages")
+	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "qa", "prod"}, "deployment stages")
 
 }
 
@@ -59,7 +59,7 @@ func developmentMode(c *model.Config) {
 	c.BaseDir = "../tmp"
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
-	c.Branch = "main"
+	c.Branch = "test"
 	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
 	c.ImageTag = "abcdefg"

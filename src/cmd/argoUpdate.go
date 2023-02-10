@@ -19,6 +19,9 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 }
 
+/*
+ * FIXME: use env configuration. Update vars before checkout. Otherwise the checkout will fail on multidir variant because the branch does not exist.
+ */
 func updateArgo(c *model.Config) {
 
 	if c.Development {

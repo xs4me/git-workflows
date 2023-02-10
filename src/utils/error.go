@@ -10,3 +10,10 @@ func CheckIfError(err error) {
 		panic(err)
 	}
 }
+
+func CheckCommandError(err error, out string) {
+	if err != nil {
+		logger.Fatal(out)
+		panic(err)
+	}
+}

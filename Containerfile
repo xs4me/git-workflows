@@ -15,7 +15,7 @@ RUN GOOOS=linux GOARCH=amd64 go build -o git-workflows -ldflags="-X main.version
 
 FROM alpine:3.15.6
 
-RUN apk add --no-cache ca-certificates curl wget bash
+RUN apk add --no-cache ca-certificates curl wget bash yq
 
 COPY --from=BUILD /app/git-workflows /bin/git-workflows
 

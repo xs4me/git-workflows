@@ -31,7 +31,7 @@ func (c *Config) InfrastructureClonePath() string {
 
 func (c *Config) ImageTagLocation() string {
 	if "" == c.TagLocation {
-		return fmt.Sprintf("%s.image.tag", c.Reponame)
+		return fmt.Sprintf(".%s.image.tag", c.Reponame)
 	} else {
 		return c.TagLocation
 	}
