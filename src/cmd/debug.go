@@ -13,7 +13,6 @@ func init() {
 var debugCmd = &cobra.Command{
 	Use:   "debug",
 	Short: "prints current configuration of the application",
-	//Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		printConfig(&Config)
 	},

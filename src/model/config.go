@@ -7,7 +7,6 @@ import (
 
 type Config struct {
 	Development     bool     `json:"development"`
-	LegacyBehavior  bool     `json:"legacy_behavior"` // if true falls back to multibranch behavior
 	BaseDir         string   `json:"base_dir"`
 	GitUrl          string   `json:"git_url"`
 	Username        string   `json:"username"`

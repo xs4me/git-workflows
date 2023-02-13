@@ -30,12 +30,7 @@ func updateArgo(c *model.Config) {
 	}
 	checkArgoprequesites(c)
 	repo := api.CloneRepo(c, "main", false)
-	if c.LegacyBehavior {
-		api.UpdateMultiBranch(c, repo)
-	}
-	if !c.LegacyBehavior {
-		api.UpdateMultiDir(c, repo)
-	}
+	api.UpdateArgoApplicationSet(c, repo)
 }
 
 func checkArgoprequesites(c *model.Config) {

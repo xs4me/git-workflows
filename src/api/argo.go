@@ -10,10 +10,9 @@ import (
 	"os/exec"
 )
 
-func UpdateMultiDir(c *model.Config, repo *git.Repository) {
+func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 	logger.Info("Updating ArgoCD Application")
-	logger.Debug("Env: %s", c.Env)
-	c.Branch = "main"
+	logger.Debug("Env: %s", c.Env())
 
 	wt := checkout(repo, "main", false)
 
@@ -25,15 +24,6 @@ func UpdateMultiDir(c *model.Config, repo *git.Repository) {
 		updateImageTag(c, filePath)
 	}
 	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
-}
-
-func UpdateMultiBranch(c *model.Config, repo *git.Repository) {
-	wt := checkout(repo, c.Env(), false)
-	filePath := fmt.Sprintf("%s/values.yaml", wt.Filesystem.Root())
-	logger.Debug("Updating file: %s", filePath)
-	updateImageTag(c, filePath)
-	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
-
 }
 
 func updateAllStages(c *model.Config, wt *git.Worktree) {

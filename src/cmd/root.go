@@ -38,7 +38,6 @@ func init() {
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
 	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out", "base directory for all operations")
-	rootCmd.PersistentFlags().BoolVarP(&Config.LegacyBehavior, "legacy", "l", false, "use legacy behavior")
 	rootCmd.PersistentFlags().StringVar(&Config.Username, "commit-user", "argo-ci", "username for git operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Email, "commit-email", "argo-ci@geaprdec.com", "email for git operations")
 
@@ -65,14 +64,7 @@ func developmentMode(c *model.Config) {
 	utils.CheckIfError(err)
 
 	// multi dir
-	//c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
-	//c.Reponame = "demo-microservice"
-	//c.Branch = "test"
-	//c.LegacyBehavior = false
-
-	// multi branch
-	c.GitUrl = "git@github.com:gepaplexx-demos/mega-backend.git"
-	c.Reponame = "mega-backend"
-	c.Branch = "feature/test"
-	c.LegacyBehavior = true
+	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
+	c.Reponame = "demo-microservice"
+	c.Branch = "test"
 }
