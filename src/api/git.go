@@ -6,6 +6,7 @@ import (
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"os"
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-func CloneRepo(c *model.Config, appRepo bool) *git.Repository {
+func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 	checkoutPrerequisites(c)
 	path, url := getCorrectRepositoryInformation(c, appRepo)
 
@@ -24,17 +25,16 @@ func CloneRepo(c *model.Config, appRepo bool) *git.Repository {
 		Depth:         1,
 		Tags:          0,
 		SingleBranch:  false,
-		ReferenceName: plumbing.NewBranchReferenceName(c.Branch),
+		ReferenceName: plumbing.NewBranchReferenceName(branch),
 		Auth:          gitAuthMethod(c),
 	})
-
 	utils.CheckIfError(err)
-	return repo
-}
 
-func OpenRepo(c *model.Config, appRepo bool) *git.Repository {
-	path, _ := getCorrectRepositoryInformation(c, appRepo)
-	repo, err := git.PlainOpen(path)
+	err = repo.Fetch(&git.FetchOptions{
+		Auth:     gitAuthMethod(c),
+		Depth:    1,
+		RefSpecs: []config.RefSpec{"refs/*:refs/*"},
+	})
 	utils.CheckIfError(err)
 	return repo
 }
@@ -87,24 +87,24 @@ func checkoutPrerequisites(c *model.Config) {
 	}
 }
 
-func checkout(c *model.Config, repo *git.Repository) *git.Worktree {
+func checkout(repo *git.Repository, branch string, create bool) *git.Worktree {
 	wt, err := repo.Worktree()
 	utils.CheckIfError(err)
 	err = wt.Checkout(&git.CheckoutOptions{
-		Create: false,
-		Branch: plumbing.NewBranchReferenceName(c.Branch),
+		Create: create,
+		Branch: plumbing.NewBranchReferenceName(branch),
 	})
 	utils.CheckIfError(err)
 	return wt
 }
 
 func commitAndPush(c *model.Config, wt *git.Worktree, repo *git.Repository, message string) {
+	logger.Info("Committing and pushing changes: %s", message)
 	commit(c, wt, message)
 	push(c, repo)
 }
 
 func commit(c *model.Config, wt *git.Worktree, message string) {
-	logger.Debug("Committing changes")
 	err := wt.AddWithOptions(&git.AddOptions{
 		All: true,
 	})

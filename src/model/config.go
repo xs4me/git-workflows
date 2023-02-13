@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Config struct {
 	Development     bool     `json:"development"`
@@ -39,4 +42,8 @@ func (c *Config) ImageTagLocation() string {
 
 func (c *Config) IsPushEnabled() bool {
 	return !c.Development
+}
+
+func (c *Config) Env() string {
+	return strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 }

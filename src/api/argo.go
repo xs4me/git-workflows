@@ -8,21 +8,19 @@ import (
 	"gepaplexx/git-workflows/utils"
 	"github.com/go-git/go-git/v5"
 	"os/exec"
-	"strings"
 )
 
 func UpdateMultiDir(c *model.Config, repo *git.Repository) {
 	logger.Info("Updating ArgoCD Application")
-	env := strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
-	logger.Debug("Env: %s", env)
+	logger.Debug("Env: %s", c.Env)
 	c.Branch = "main"
 
-	wt := checkout(c, repo)
+	wt := checkout(repo, "main", false)
 
-	if "main" == env {
+	if "main" == c.Env() {
 		updateAllStages(c, wt)
 	} else {
-		filePath := fmt.Sprintf("%s/apps/env/%s/values.yaml", wt.Filesystem.Root(), env)
+		filePath := fmt.Sprintf("%s/apps/env/%s/values.yaml", wt.Filesystem.Root(), c.Env())
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
@@ -30,7 +28,7 @@ func UpdateMultiDir(c *model.Config, repo *git.Repository) {
 }
 
 func UpdateMultiBranch(c *model.Config, repo *git.Repository) {
-	wt := checkout(c, repo)
+	wt := checkout(repo, c.Env(), false)
 	filePath := fmt.Sprintf("%s/values.yaml", wt.Filesystem.Root())
 	logger.Debug("Updating file: %s", filePath)
 	updateImageTag(c, filePath)
@@ -52,7 +50,7 @@ func updateImageTag(c *model.Config, filePath string) {
 	cmd := exec.Command("yq", "-i", fmt.Sprintf("with(%s; . = \"%s\" | . style=\"double\")", c.ImageTagLocation(), c.ImageTag), filePath)
 	cmd.Stdout = &out
 	cmd.Stderr = &out
-	fmt.Println(cmd.String())
+	logger.Debug(cmd.String())
 	err := cmd.Run()
 	utils.CheckIfError(err)
 }

@@ -25,6 +25,6 @@ func checkout(c *model.Config) {
 		developmentMode(c)
 	}
 
-	api.CloneRepo(c, true)
+	api.CloneRepo(c, c.Branch, true)
 	api.ExtractGitInformation(c)
 }

@@ -57,13 +57,22 @@ func init() {
 
 func developmentMode(c *model.Config) {
 	c.BaseDir = "../tmp"
-	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
-	c.Reponame = "demo-microservice"
-	c.Branch = "test"
 	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
 	c.ImageTag = "abcdefg"
 	err := os.RemoveAll(c.BaseDir)
 	logger.EnableDebug()
 	utils.CheckIfError(err)
+
+	// multi dir
+	//c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
+	//c.Reponame = "demo-microservice"
+	//c.Branch = "test"
+	//c.LegacyBehavior = false
+
+	// multi branch
+	c.GitUrl = "git@github.com:gepaplexx-demos/mega-backend.git"
+	c.Reponame = "mega-backend"
+	c.Branch = "feature/test"
+	c.LegacyBehavior = true
 }

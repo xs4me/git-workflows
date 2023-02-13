@@ -29,7 +29,7 @@ func updateArgo(c *model.Config) {
 		developmentMode(c)
 	}
 	checkArgoprequesites(c)
-	repo := api.CloneRepo(c, false)
+	repo := api.CloneRepo(c, "main", false)
 	if c.LegacyBehavior {
 		api.UpdateMultiBranch(c, repo)
 	}
