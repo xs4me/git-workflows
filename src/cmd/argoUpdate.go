@@ -23,8 +23,9 @@ func init() {
 func updateArgo(c *model.Config) {
 	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	if c.Development {
-		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
+		c.Branch = "main"
+		c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	}
 	argoUpdatePrerequisites(c)
 	repo := api.CloneRepo(c, "main", false)

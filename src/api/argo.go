@@ -1,20 +1,26 @@
 package api
 
 import (
-	"bytes"
 	"fmt"
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
+	"os"
 	"os/exec"
 	"strings"
 )
 
 const (
-	ELEMENT         = "{\"cluster\": \"%s\", \"url\": \"https://kubernetes.default.svc\", \"branch\": \"main\"}"
-	SOURCE_SELECTOR = ".spec.generators[0].list.elements | map(select(.branch == \"%s\")) | .[0].cluster"
+	ELEMENT                 = "{\"cluster\": \"%s\", \"url\": \"https://kubernetes.default.svc\", \"branch\": \"main\"}"
+	SOURCE_SELECTOR         = ".spec.generators[0].list.elements | map(select(.branch == \"%s\")) | .[0].cluster"
+	APPLICATIONSET_LOCATION = "%s/argocd/applicationset.yaml"
+	VALUES_LOCATION         = "%s/apps/env/%s/values.yaml"
+	UPDATE_FORMAT           = "with(%s; . = \"%s\" | . style=\"double\")"
+	ADD_FORMAT              = ".spec.generators[0].list.elements += %s"
+	DELETE_FORMAT           = "del(.spec.generators[0].list.elements[] | select(.cluster == \"%s\"))"
+	TEMPLATE_LOCATION       = "%s/apps/env/%s"
 )
 
 func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
@@ -26,7 +32,7 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 	if "main" == c.Env {
 		updateAllStages(c, wt)
 	} else {
-		filePath := fmt.Sprintf("%s/apps/env/%s/values.yaml", wt.Filesystem.Root(), c.Env)
+		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
@@ -38,59 +44,85 @@ func ArgoCreateEnvironment(c *model.Config, repo *git.Repository) {
 	logger.Debug("Env: %s", c.Env)
 
 	wt := checkout(repo, "main", false)
-	filePath := fmt.Sprintf("%s/argocd/applicationset.yaml", wt.Filesystem.Root())
+	filePath := fmt.Sprintf(APPLICATIONSET_LOCATION, wt.Filesystem.Root())
 	addEnvironmentToApplicationSet(c, filePath)
 	copyTemplateDir(wt, c, filePath)
 
-	logger.Info("Copying ApplicationSet")
-	err := copy.Copy(filePath, fmt.Sprintf("%s/appliationset.yaml", c.BaseDir))
-	utils.CheckIfError(err)
+	copyApplicationSet(c, filePath)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Added ApplicationSet entry and templates for %s", c.Env))
+}
+
+func DeleteArgoEnvironment(c *model.Config, repo *git.Repository) {
+	logger.Info("Deleting entry in ArgoCD ApplicationSet")
+	logger.Debug("Env: %s", c.Env)
+
+	protectEnvironments(c)
+
+	wt := checkout(repo, "main", false)
+	filePath := fmt.Sprintf(APPLICATIONSET_LOCATION, wt.Filesystem.Root())
+	removeEnvironmentFromApplicationSet(c, filePath)
+	deleteTemplateDir(wt, c)
+	copyApplicationSet(c, filePath)
+	commitAndPush(c, wt, repo, fmt.Sprintf("Removed ApplicationSet entry and templates for %s", c.Env))
+}
+
+func protectEnvironments(c *model.Config) {
+	for _, stage := range c.Stages {
+		if stage == c.Branch && c.Force == false {
+			logger.Fatal("%s is a predefined stage. It cannot be deleted via automation. Override this check by setting --force flag", stage)
+		}
+	}
 }
 
 func updateAllStages(c *model.Config, wt *git.Worktree) {
 
 	for _, stage := range c.Stages {
-		filePath := fmt.Sprintf("%s/apps/env/%s/values.yaml", wt.Filesystem.Root(), stage)
+		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), stage)
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
 }
 
 func updateImageTag(c *model.Config, filePath string) {
-	var out bytes.Buffer
-	cmd := exec.Command("yq", "-i", fmt.Sprintf("with(%s; . = \"%s\" | . style=\"double\")", c.ImageTagLocation(), c.ImageTag), filePath)
-	cmd.Stdout = &out
-	cmd.Stderr = &out
-	logger.Debug(cmd.String())
-	err := cmd.Run()
-	utils.CheckIfError(err)
+	cmd := exec.Command("yq", "-i", fmt.Sprintf(UPDATE_FORMAT, c.ImageTagLocation(), c.ImageTag), filePath)
+	_ = execute(cmd)
 }
 
-func addEnvironmentToApplicationSet(c *model.Config, filePath string) {
-	var out bytes.Buffer
-	logger.Info("Adding %s to ApplicationSet %s", fmt.Sprintf(ELEMENT, c.Env), filePath)
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(".spec.generators[0].list.elements += %s", fmt.Sprintf(ELEMENT, c.Env)), filePath)
-	cmd.Stdout = &out
-	cmd.Stderr = &out
-	logger.Debug(cmd.String())
-	err := cmd.Run()
-	utils.CheckIfError(err)
+func addEnvironmentToApplicationSet(c *model.Config, path string) {
+	logger.Info("Adding %s to ApplicationSet %s", fmt.Sprintf(ELEMENT, c.Env), path)
+	cmd := exec.Command("yq", "-i", fmt.Sprintf(ADD_FORMAT, fmt.Sprintf(ELEMENT, c.Env)), path)
+	_ = execute(cmd)
 }
 
 func copyTemplateDir(wt *git.Worktree, c *model.Config, applicationset string) {
-	var out bytes.Buffer
-	cmd := exec.Command("yq", fmt.Sprintf(SOURCE_SELECTOR, c.FromBranch), applicationset)
-	cmd.Stdout = &out
-	cmd.Stderr = &out
-	logger.Debug(cmd.String())
-	err := cmd.Run()
-	utils.CheckIfError(err)
+	fromBranch := strings.ReplaceAll(strings.ReplaceAll(c.FromBranch, "/", "-"), "_", "-")
+	cmd := exec.Command("yq", fmt.Sprintf(SOURCE_SELECTOR, fromBranch), applicationset)
+	res := execute(cmd)
 
-	sourceDir := fmt.Sprintf("%s/apps/env/%s", wt.Filesystem.Root(), strings.TrimRight(out.String(), "\n"))
-	targetTemplateDir := fmt.Sprintf("%s/apps/env/%s", wt.Filesystem.Root(), c.Env)
+	sourceDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), res)
+	targetTemplateDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), c.Env)
 
 	logger.Info("Copying %s to %s", sourceDir, targetTemplateDir)
-	err = copy.Copy(sourceDir, targetTemplateDir)
+	err := copy.Copy(sourceDir, targetTemplateDir)
+	utils.CheckIfError(err)
+}
+
+func deleteTemplateDir(wt *git.Worktree, c *model.Config) {
+	targetTemplateDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), c.Env)
+
+	logger.Info("Deleting %s", targetTemplateDir)
+	err := os.RemoveAll(targetTemplateDir)
+	utils.CheckIfError(err)
+}
+
+func removeEnvironmentFromApplicationSet(c *model.Config, path string) {
+	logger.Info("Removing %s from ApplicationSet %s", c.Env, path)
+	cmd := exec.Command("yq", "-i", fmt.Sprintf(DELETE_FORMAT, c.Env), path)
+	_ = execute(cmd)
+}
+
+func copyApplicationSet(c *model.Config, filePath string) {
+	logger.Info("Copying ApplicationSet")
+	err := copy.Copy(filePath, fmt.Sprintf("%s/appliationset.yaml", c.BaseDir))
 	utils.CheckIfError(err)
 }

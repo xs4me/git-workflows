@@ -21,6 +21,7 @@ type Config struct {
 	Stages          []string `json:"stages"`
 	Env             string   `json:"env"`
 	FromBranch      string   `json:"from_branch"`
+	Force           bool     `json:"force"`
 }
 
 func (c *Config) ApplicationClonePath() string {

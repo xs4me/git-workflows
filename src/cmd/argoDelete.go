@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"gepaplexx/git-workflows/api"
-	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
 	"strings"
@@ -23,12 +22,13 @@ func init() {
 func deleteArgo(c *model.Config) {
 	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	if c.Development {
-		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
+		c.Branch = "test"
+		c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	}
 	argoDeletePrerequisites(c)
 	repo := api.CloneRepo(c, "main", false)
-	api.ArgoCreateEnvironment(c, repo)
+	api.DeleteArgoEnvironment(c, repo)
 }
 
 func argoDeletePrerequisites(c *model.Config) {

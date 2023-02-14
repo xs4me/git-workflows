@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"gepaplexx/git-workflows/api"
-	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
 	"strings"
@@ -23,8 +22,10 @@ func init() {
 func createArgo(c *model.Config) {
 	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	if c.Development {
-		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
+		c.Branch = "feature/new-branch"
+		c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
+		c.FromBranch = "qa"
 	}
 	argoCreatePrerequisites(c)
 	repo := api.CloneRepo(c, "main", false)

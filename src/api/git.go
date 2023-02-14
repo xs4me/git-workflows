@@ -15,7 +15,6 @@ import (
 )
 
 func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
-	checkoutPrerequisites(c)
 	path, url := getCorrectRepositoryInformation(c, appRepo)
 
 	logger.Info("Cloning Repository %s, to %s", url, path)
@@ -65,7 +64,7 @@ func ExtractGitInformation(c *model.Config) {
 
 func writeCommitInformation(c *model.Config, typ string, content string) {
 	logger.Debug("Writing commit information to file: %s", typ)
-	f, err := os.Create(c.BaseDir + "commit_" + typ)
+	f, err := os.Create(c.BaseDir + "/commit_" + typ)
 	utils.CheckIfError(err)
 	defer func(f *os.File) {
 		err := f.Close()
@@ -73,18 +72,6 @@ func writeCommitInformation(c *model.Config, typ string, content string) {
 	}(f)
 	_, err = f.WriteString(content)
 	utils.CheckIfError(err)
-}
-
-func checkoutPrerequisites(c *model.Config) {
-	logger.Debug("Checking checkout prerequisites")
-	if c.GitUrl == "" {
-		logger.Error("GitUrl is empty. Please provide a valid git url.")
-		os.Exit(1)
-	}
-	if c.Reponame == "" {
-		logger.Error("Repository name is empty. Please provide a valid repository name.")
-		os.Exit(1)
-	}
 }
 
 func checkout(repo *git.Repository, branch string, create bool) *git.Worktree {

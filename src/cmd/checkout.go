@@ -21,8 +21,9 @@ var checkoutCmd = &cobra.Command{
 
 func checkout(c *model.Config) {
 	if c.Development {
-		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
+		c.Branch = "main"
+		c.Env = "main"
 	}
 
 	checkoutPreRequisites(c)

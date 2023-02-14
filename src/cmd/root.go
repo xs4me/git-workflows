@@ -9,7 +9,6 @@ import (
 	"gepaplexx/git-workflows/utils"
 	"github.com/spf13/cobra"
 	"os"
-	"strings"
 )
 
 var Version string
@@ -51,6 +50,7 @@ func init() {
 	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "qa", "prod"}, "deployment stages")
 	rootCmd.PersistentFlags().StringVar(&Config.FromBranch, "from-branch", "main", "Base branch for argo-create | Branch from which to deploy from")
 
+	deleteCmd.PersistentFlags().BoolVarP(&Config.Force, "force", "f", false, "allows deletion of protected environments. Remember: with great power comes great responsibility!")
 }
 
 func prerequisites(c *model.Config) {
@@ -68,6 +68,7 @@ func prerequisites(c *model.Config) {
 }
 
 func developmentMode(c *model.Config) {
+	logger.Info("Development mode enabled. Using local configuration.")
 	c.BaseDir = "../tmp"
 	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
@@ -75,10 +76,6 @@ func developmentMode(c *model.Config) {
 	err := os.RemoveAll(c.BaseDir)
 	logger.EnableDebug()
 	utils.CheckIfError(err)
-
-	// multi dir
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
-	c.Branch = "blubb"
-	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 }
