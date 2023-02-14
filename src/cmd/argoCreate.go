@@ -10,7 +10,7 @@ import (
 
 var createCmd = &cobra.Command{
 	Use:   "argo-create",
-	Short: "Creates a new argocd application on branch creation.",
+	Short: "Creates a new argocd application on branch creation and updates git repository accordingly.",
 	Run: func(cmd *cobra.Command, args []string) {
 		createArgo(&Config)
 	},
@@ -32,8 +32,5 @@ func createArgo(c *model.Config) {
 }
 
 func argoCreatePrerequisites(c *model.Config) {
-	if c.Branch == "" {
-		logger.Fatal("Branch must be set")
-	}
-
+	prerequisites(c)
 }

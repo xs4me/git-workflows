@@ -53,6 +53,20 @@ func init() {
 
 }
 
+func prerequisites(c *model.Config) {
+	if c.GitUrl == "" {
+		logger.Fatal("Git URL must be set")
+	}
+
+	if c.Reponame == "" {
+		logger.Fatal("Reponame must be set")
+	}
+
+	if c.Branch == "" {
+		logger.Fatal("Branch must be set")
+	}
+}
+
 func developmentMode(c *model.Config) {
 	c.BaseDir = "../tmp"
 	c.Extract = true
