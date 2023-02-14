@@ -21,10 +21,10 @@ jobs:
           username: ${{ github.repository }}
           password: ${{ secrets.GHCR_TOKEN }}
           dockerfile: Containerfile
-          directory:  .
+          directory: .
           addLatest: false
-          tags: ${{ steps.source-version.outputs.version }}
-          buildArgs: VERSION="${{ steps.source-version.outputs.version }}.$(git rev-parse --short HEAD)"
+          tags: ${{ steps.source-version.outputs.version }}-devel
+          buildArgs: VERSION="${{ steps.source-version.outputs.version }}-$(git rev-parse --short HEAD)"
 #  notify: todo enable
 #    name: Slack Notifications
 #    runs-on: ubuntu-latest
