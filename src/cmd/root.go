@@ -7,9 +7,9 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
-	"os"
-
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
 var Version string
@@ -28,9 +28,7 @@ Subcommands reflect the stages in the workflow. `,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+	utils.CheckIfError(err)
 }
 
 func init() {
@@ -51,6 +49,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.ImageTag, "tag", "", "Commit-Hash/Image-Tag for the deployment change")
 	rootCmd.PersistentFlags().StringVar(&Config.TagLocation, "image-tag-location", "", "Location of image-tag in the infrastructure repository")
 	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "qa", "prod"}, "deployment stages")
+	rootCmd.PersistentFlags().StringVar(&Config.FromBranch, "from-branch", "main", "Base branch for argo-create | Branch from which to deploy from")
 
 }
 
@@ -66,5 +65,6 @@ func developmentMode(c *model.Config) {
 	// multi dir
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
 	c.Reponame = "demo-microservice"
-	c.Branch = "test"
+	c.Branch = "blubb"
+	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 }

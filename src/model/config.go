@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Config struct {
@@ -20,6 +19,8 @@ type Config struct {
 	ImageTag        string   `json:"image_tag"`
 	TagLocation     string   `json:"tag_location"`
 	Stages          []string `json:"stages"`
+	Env             string   `json:"env"`
+	FromBranch      string   `json:"from_branch"`
 }
 
 func (c *Config) ApplicationClonePath() string {
@@ -41,8 +42,4 @@ func (c *Config) ImageTagLocation() string {
 
 func (c *Config) IsPushEnabled() bool {
 	return !c.Development
-}
-
-func (c *Config) Env() string {
-	return strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 }

@@ -8,34 +8,30 @@ import (
 	"strings"
 )
 
-var updateCmd = &cobra.Command{
-	Use:   "argo-update",
-	Short: "Updates argocd application in infrastructure repository to handle deployments",
+var createCmd = &cobra.Command{
+	Use:   "argo-create",
+	Short: "Creates a new argocd application on branch creation.",
 	Run: func(cmd *cobra.Command, args []string) {
-		updateArgo(&Config)
+		createArgo(&Config)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(createCmd)
 }
 
-func updateArgo(c *model.Config) {
+func createArgo(c *model.Config) {
 	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
 	if c.Development {
 		logger.Debug("Development mode enabled. Using local configuration.")
 		developmentMode(c)
 	}
-	argoUpdatePrerequisites(c)
+	argoCreatePrerequisites(c)
 	repo := api.CloneRepo(c, "main", false)
-	api.UpdateArgoApplicationSet(c, repo)
+	api.ArgoCreateEnvironment(c, repo)
 }
 
-func argoUpdatePrerequisites(c *model.Config) {
-	if c.ImageTag == "" {
-		logger.Fatal("Image tag must be set")
-	}
-
+func argoCreatePrerequisites(c *model.Config) {
 	if c.Branch == "" {
 		logger.Fatal("Branch must be set")
 	}
