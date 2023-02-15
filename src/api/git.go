@@ -16,13 +16,13 @@ import (
 )
 
 func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
-	path, url := getCorrectRepositoryInformation(c, appRepo)
+	path, url, depth := getCorrectRepositoryInformation(c, appRepo)
 
 	logger.Info("Cloning Repository %s, to %s", url, path)
 	repo, err := git.PlainClone(path, false, &git.CloneOptions{
 		URL:             url,
 		Progress:        nil,
-		Depth:           1,
+		Depth:           depth,
 		Tags:            0,
 		SingleBranch:    false,
 		ReferenceName:   plumbing.NewBranchReferenceName(branch),
@@ -115,13 +115,13 @@ func checkout(repo *git.Repository, branch string, create bool) *git.Worktree {
 	return wt
 }
 
-func getCorrectRepositoryInformation(c *model.Config, appRepo bool) (path string, url string) {
+func getCorrectRepositoryInformation(c *model.Config, appRepo bool) (path string, url string, depth int) {
 	logger.Debug("Checking if application repository is requested, appRepo: %t", appRepo)
 	if appRepo {
-		return c.ApplicationClonePath(), c.GitUrl
+		return c.ApplicationClonePath(), c.GitUrl, 1
 	} else {
 		url := fmt.Sprintf("%s%s%s", strings.TrimSuffix(c.GitUrl, ".git"), c.InfraRepoSuffix, ".git")
-		return c.InfrastructureClonePath(), url
+		return c.InfrastructureClonePath(), url, 0
 	}
 }
 
