@@ -21,6 +21,4 @@ COPY --from=BUILD /app/git-workflows /bin/git-workflows
 
 RUN chgrp -R 0 /bin/git-workflows && chmod -R g=u /bin/git-workflows
 
-USER 1001
-
 ENTRYPOINT [ "/bin/git-workflows" ]
