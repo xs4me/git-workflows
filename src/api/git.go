@@ -63,7 +63,7 @@ func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch st
 	_ = execute(cmd)
 	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
 	_ = execute(cmd)
-	cmd = exec.Command("git", "merge", fromBranch)
+	cmd = exec.Command("git", "merge", "--squash", fromBranch)
 	_ = execute(cmd)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
 }
