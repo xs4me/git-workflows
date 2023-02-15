@@ -56,9 +56,14 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 	}
 }
 
+// todo: über go implementierung lösen.
 func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch string) {
 	wt := checkout(repo, toBranch, false)
-	cmd := exec.Command("git", "merge", fromBranch)
+	cmd := exec.Command("git", "config", "--global", "user.email", c.Email)
+	_ = execute(cmd)
+	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
+	_ = execute(cmd)
+	cmd = exec.Command("git", "merge", fromBranch)
 	_ = execute(cmd)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
 }
