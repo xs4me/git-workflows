@@ -5,6 +5,7 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 func init() {
@@ -20,6 +21,7 @@ var deployCmd = &cobra.Command{
 }
 
 func deploy(c *model.Config) {
+	sanitizeInput(c)
 	if c.Development {
 		developmentMode(c)
 		c.FromBranch = "main"
@@ -44,5 +46,13 @@ func deployPrerequisites(c *model.Config) {
 	if len(c.Stages) == 0 {
 		logger.Fatal("stages are not configured")
 	}
+}
 
+func sanitizeInput(c *model.Config) {
+	c.FromBranch = strings.ReplaceAll(c.FromBranch, "[", "")
+	c.FromBranch = strings.ReplaceAll(c.FromBranch, "]", "")
+	c.ToBranch = strings.ReplaceAll(c.ToBranch, "[", "")
+	c.ToBranch = strings.ReplaceAll(c.ToBranch, "]", "")
+	c.Reponame = strings.ReplaceAll(c.Reponame, "[", "")
+	c.Reponame = strings.ReplaceAll(c.Reponame, "]", "")
 }

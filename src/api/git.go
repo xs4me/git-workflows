@@ -41,7 +41,6 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 }
 
 func DeployFromTo(c *model.Config, repo *git.Repository) {
-	sanitizeInput(c)
 	logger.Info("Deploying from %s to %s", c.FromBranch, c.ToBranch)
 
 	fromIndex := utils.IndexOf(c.FromBranch, c.Stages)
@@ -157,11 +156,4 @@ func push(c *model.Config, repo *git.Repository) {
 	} else {
 		logger.Debug("Development mode is enabled. Skipping push to remote repository")
 	}
-}
-
-func sanitizeInput(c *model.Config) {
-	c.FromBranch = strings.ReplaceAll(c.FromBranch, "[", "")
-	c.FromBranch = strings.ReplaceAll(c.FromBranch, "]", "")
-	c.ToBranch = strings.ReplaceAll(c.ToBranch, "[", "")
-	c.ToBranch = strings.ReplaceAll(c.ToBranch, "]", "")
 }
