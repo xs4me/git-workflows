@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -19,13 +20,14 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 
 	logger.Info("Cloning Repository %s, to %s", url, path)
 	repo, err := git.PlainClone(path, false, &git.CloneOptions{
-		URL:           url,
-		Progress:      nil,
-		Depth:         1,
-		Tags:          0,
-		SingleBranch:  false,
-		ReferenceName: plumbing.NewBranchReferenceName(branch),
-		Auth:          gitAuthMethod(c),
+		URL:             url,
+		Progress:        nil,
+		Depth:           1,
+		Tags:            0,
+		SingleBranch:    false,
+		ReferenceName:   plumbing.NewBranchReferenceName(branch),
+		Auth:            gitAuthMethod(c),
+		InsecureSkipTLS: true,
 	})
 	utils.CheckIfError(err)
 
@@ -38,13 +40,42 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 	return repo
 }
 
-func getCorrectRepositoryInformation(c *model.Config, appRepo bool) (path string, url string) {
-	logger.Debug("Checking if application repository is requested, appRepo: %t", appRepo)
-	if appRepo {
-		return c.ApplicationClonePath(), c.GitUrl
-	} else {
-		url := fmt.Sprintf("%s%s%s", strings.TrimSuffix(c.GitUrl, ".git"), c.InfraRepoSuffix, ".git")
-		return c.InfrastructureClonePath(), url
+func DeployFromTo(c *model.Config, repo *git.Repository) {
+	sanitizeInput(c)
+	logger.Info("Deploying from %s to %s", c.FromBranch, c.ToBranch)
+
+	fromIndex := utils.IndexOf(c.FromBranch, c.Stages)
+	toIndex := utils.IndexOf(c.ToBranch, c.Stages)
+
+	mergeable(c, fromIndex, toIndex)
+
+	for fromIndex < toIndex {
+		fromBranch := c.Stages[fromIndex]
+		toBranch := c.Stages[fromIndex+1]
+		merge(c, repo, fromBranch, toBranch)
+		fromIndex++
+	}
+}
+
+func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch string) {
+	wt := checkout(repo, toBranch, false)
+	cmd := exec.Command("git", "merge", fromBranch)
+	_ = execute(cmd)
+	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
+}
+
+func mergeable(c *model.Config, fromIndex int, toIndex int) {
+	if fromIndex == -1 || toIndex == -1 {
+		logger.Fatal("Source or target stage not in configured stages. exiting")
+	}
+
+	if fromIndex > toIndex {
+		logger.Fatal("Configuration doesn't allow merge from %s to %s. exiting", c.FromBranch, c.ToBranch)
+	}
+
+	if fromIndex == toIndex {
+		logger.Info("Nothing to do. exiting")
+		return
 	}
 }
 
@@ -85,6 +116,16 @@ func checkout(repo *git.Repository, branch string, create bool) *git.Worktree {
 	return wt
 }
 
+func getCorrectRepositoryInformation(c *model.Config, appRepo bool) (path string, url string) {
+	logger.Debug("Checking if application repository is requested, appRepo: %t", appRepo)
+	if appRepo {
+		return c.ApplicationClonePath(), c.GitUrl
+	} else {
+		url := fmt.Sprintf("%s%s%s", strings.TrimSuffix(c.GitUrl, ".git"), c.InfraRepoSuffix, ".git")
+		return c.InfrastructureClonePath(), url
+	}
+}
+
 func commitAndPush(c *model.Config, wt *git.Worktree, repo *git.Repository, message string) {
 	logger.Info("Committing and pushing changes: %s", message)
 	commit(c, wt, message)
@@ -116,4 +157,11 @@ func push(c *model.Config, repo *git.Repository) {
 	} else {
 		logger.Debug("Development mode is enabled. Skipping push to remote repository")
 	}
+}
+
+func sanitizeInput(c *model.Config) {
+	c.FromBranch = strings.ReplaceAll(c.FromBranch, "[", "")
+	c.FromBranch = strings.ReplaceAll(c.FromBranch, "]", "")
+	c.ToBranch = strings.ReplaceAll(c.ToBranch, "[", "")
+	c.ToBranch = strings.ReplaceAll(c.ToBranch, "]", "")
 }

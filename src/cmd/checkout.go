@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"gepaplexx/git-workflows/api"
-	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"github.com/spf13/cobra"
 )
@@ -33,15 +32,5 @@ func checkout(c *model.Config) {
 }
 
 func checkoutPreRequisites(c *model.Config) {
-	if c.GitUrl == "" {
-		logger.Fatal("Git URL must be set")
-	}
-
-	if c.Reponame == "" {
-		logger.Fatal("Reponame must be set")
-	}
-
-	if c.Branch == "" {
-		logger.Fatal("Branch must be set")
-	}
+	prerequisites(c)
 }

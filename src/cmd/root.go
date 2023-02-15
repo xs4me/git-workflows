@@ -34,7 +34,7 @@ func init() {
 
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
-	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out", "base directory for all operations")
+	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out/", "base directory for all operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Username, "commit-user", "argo-ci", "username for git operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Email, "commit-email", "argo-ci@geaprdec.com", "email for git operations")
 

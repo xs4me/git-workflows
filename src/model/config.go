@@ -21,6 +21,7 @@ type Config struct {
 	Stages          []string `json:"stages"`
 	Env             string   `json:"env"`
 	FromBranch      string   `json:"from_branch"`
+	ToBranch        string   `json:"to_branch"`
 	Force           bool     `json:"force"`
 }
 
