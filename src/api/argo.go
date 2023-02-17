@@ -1,12 +1,15 @@
 package api
 
 import (
+	"bytes"
 	"fmt"
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
+	"gopkg.in/yaml.v3"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -34,7 +37,7 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 	} else {
 		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
 		logger.Debug("Updating file: %s", filePath)
-		updateImageTag(c, filePath)
+		updateImageTagGo(c, filePath)
 	}
 	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
 }
@@ -79,13 +82,90 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 	for _, stage := range c.Stages {
 		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), stage)
 		logger.Debug("Updating file: %s", filePath)
-		updateImageTag(c, filePath)
+		updateImageTagGo(c, filePath)
 	}
 }
 
-func updateImageTag(c *model.Config, filePath string) {
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(UPDATE_FORMAT, c.ImageTagLocation(), c.ImageTag), filePath)
-	_ = execute(cmd)
+func updateImageTagGo(c *model.Config, filepath string) {
+	// TODO gattma testen!
+	nodes := parseYaml(filepath)
+	updated := updateVal(nodes.Content[0], c.ImageTagLocation(), c.ImageTag)
+	if !updated {
+		logger.Fatal("no update happend: %s not found", c.ImageTagLocation())
+	}
+
+	writeUpdatedYaml(nodes, filepath)
+}
+
+func parseYaml(filepath string) yaml.Node {
+	file, err := os.Open(filepath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	by, err := io.ReadAll(file)
+	utils.CheckIfError(err)
+
+	var node yaml.Node
+	err = yaml.Unmarshal(by, &node)
+	utils.CheckIfError(err)
+	return node
+}
+
+func writeUpdatedYaml(nodes yaml.Node, filepath string) {
+	var b bytes.Buffer
+	yamlEncoder := yaml.NewEncoder(&b)
+	yamlEncoder.SetIndent(2)
+	err := yamlEncoder.Encode(&nodes)
+	utils.CheckIfError(err)
+
+	err = os.WriteFile(filepath, b.Bytes(), 0664)
+	utils.CheckIfError(err)
+}
+func updateVal(node *yaml.Node, updatePath string, newVal string) bool {
+	current := ""
+	found := false
+	update(node, &current, updatePath, newVal, &found)
+	return found
+}
+
+func update(node *yaml.Node, current *string, lookingFor string, newVal string, found *bool) {
+	if *found {
+		return
+	}
+	if node.Kind == yaml.SequenceNode {
+		for _, child := range node.Content {
+			update(child, current, lookingFor, newVal, found)
+		}
+	} else if node.Kind == yaml.MappingNode {
+		for i := 0; i < len(node.Content); i += 2 {
+			key := node.Content[i]
+			value := node.Content[i+1]
+			appendAndCheck(current, node.Content[0].Value, lookingFor)
+			update(key, current, lookingFor, newVal, found)
+			update(value, current, lookingFor, newVal, found)
+
+		}
+	} else {
+		if *current == lookingFor {
+			node.Value = newVal
+			*found = true
+		}
+
+		appendAndCheck(current, node.Value, lookingFor)
+	}
+}
+
+func appendAndCheck(current *string, appendix string, lookingFor string) {
+	if *current != "" {
+		*current += "."
+	}
+
+	*current += appendix
+	if !strings.HasPrefix(lookingFor, *current) {
+		*current, _, _ = strings.Cut(*current, "."+appendix)
+	}
 }
 
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
