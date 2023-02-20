@@ -47,9 +47,9 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 	toIndex := utils.IndexOf(c.ToBranch, c.Stages)
 
 	mergeable(c, fromIndex, toIndex)
-	cmd := exec.Command("git", "config", "--global", "user.email", c.Email)
+	cmd := exec.Command("git", "config", "--local", "user.email", c.Email)
 	_ = execute(cmd)
-	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
+	cmd = exec.Command("git", "config", "--local", "user.name", c.Username)
 	_ = execute(cmd)
 
 	for fromIndex < toIndex {
