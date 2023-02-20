@@ -147,6 +147,11 @@ func commit(c *model.Config, wt *git.Worktree, message string) {
 			Email: c.Email,
 			When:  time.Now(),
 		},
+		Author: &object.Signature{
+			Name:  c.Username,
+			Email: c.Email,
+			When:  time.Now(),
+		},
 	})
 	utils.CheckIfError(err)
 }
