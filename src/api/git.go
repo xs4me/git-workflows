@@ -47,6 +47,10 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 	toIndex := utils.IndexOf(c.ToBranch, c.Stages)
 
 	mergeable(c, fromIndex, toIndex)
+	cmd := exec.Command("git", "config", "--global", "user.email", c.Email)
+	_ = execute(cmd)
+	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
+	_ = execute(cmd)
 
 	for fromIndex < toIndex {
 		fromBranch := c.Stages[fromIndex]
@@ -59,11 +63,7 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 // todo: über go implementierung lösen.
 func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch string) {
 	wt := checkout(repo, toBranch, false)
-	cmd := exec.Command("git", "config", "--global", "user.email", c.Email)
-	_ = execute(cmd)
-	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
-	_ = execute(cmd)
-	cmd = exec.Command("git", "merge", "--squash", fromBranch)
+	cmd := exec.Command("git", "merge", "--squash", fromBranch)
 	_ = execute(cmd)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
 }
@@ -99,7 +99,7 @@ func ExtractGitInformation(c *model.Config) {
 
 func writeCommitInformation(c *model.Config, typ string, content string) {
 	logger.Debug("Writing commit information to file: %s", typ)
-	f, err := os.Create(c.BaseDir + "/commit_" + typ)
+	f, err := os.Create(c.BaseDir + "commit_" + typ)
 	utils.CheckIfError(err)
 	defer func(f *os.File) {
 		err := f.Close()
