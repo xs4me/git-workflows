@@ -94,7 +94,7 @@ func ExtractGitInformation(c *model.Config) {
 
 	writeCommitInformation(c, "hash", commit.Hash.String()[0:7])
 	writeCommitInformation(c, "user", commit.Author.Name)
-	writeCommitInformation(c, "email", commit.Author.Email)
+	writeCommitInformation(c, "mail", commit.Author.Email)
 }
 
 func writeCommitInformation(c *model.Config, typ string, content string) {
