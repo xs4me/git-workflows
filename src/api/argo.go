@@ -37,7 +37,7 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 	} else {
 		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
 		logger.Debug("Updating file: %s", filePath)
-		updateImageTagGo(c, filePath)
+		updateImageTag(c, filePath)
 	}
 	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
 }
@@ -82,12 +82,11 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 	for _, stage := range c.Stages {
 		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), stage)
 		logger.Debug("Updating file: %s", filePath)
-		updateImageTagGo(c, filePath)
+		updateImageTag(c, filePath)
 	}
 }
 
-func updateImageTagGo(c *model.Config, filepath string) {
-	// TODO gattma testen!
+func updateImageTag(c *model.Config, filepath string) {
 	nodes := parseYaml(filepath)
 	updated := updateVal(nodes.Content[0], c.ImageTagLocation(), c.ImageTag)
 	if !updated {
@@ -142,7 +141,12 @@ func update(node *yaml.Node, current *string, lookingFor string, newVal string, 
 		for i := 0; i < len(node.Content); i += 2 {
 			key := node.Content[i]
 			value := node.Content[i+1]
-			appendAndCheck(current, node.Content[0].Value, lookingFor)
+			appendIfValid(current, key.Value, lookingFor)
+			if *current == lookingFor {
+				node.Content[i+1].Value = newVal
+				*found = true
+				return
+			}
 			update(key, current, lookingFor, newVal, found)
 			update(value, current, lookingFor, newVal, found)
 
@@ -153,19 +157,26 @@ func update(node *yaml.Node, current *string, lookingFor string, newVal string, 
 			*found = true
 		}
 
-		appendAndCheck(current, node.Value, lookingFor)
+		appendIfValid(current, node.Value, lookingFor)
 	}
 }
 
-func appendAndCheck(current *string, appendix string, lookingFor string) {
+func appendIfValid(current *string, appendix string, lookingFor string) {
+	newCurrent := *current
 	if *current != "" {
-		*current += "."
+		newCurrent += "."
 	}
 
-	*current += appendix
-	if !strings.HasPrefix(lookingFor, *current) {
-		*current, _, _ = strings.Cut(*current, "."+appendix)
+	newCurrent += appendix
+	if !strings.HasPrefix(lookingFor, newCurrent) {
+		if *current != "" {
+			newCurrent = strings.TrimSuffix(newCurrent, "."+appendix)
+		} else {
+			newCurrent = ""
+		}
 	}
+
+	*current = newCurrent
 }
 
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
