@@ -27,11 +27,11 @@ type Config struct {
 
 func (c *Config) ApplicationClonePath() string {
 
-	return fmt.Sprintf("%s/%s", c.BaseDir, c.Reponame)
+	return fmt.Sprintf("%s%s", c.BaseDir, c.Reponame)
 }
 
 func (c *Config) InfrastructureClonePath() string {
-	return fmt.Sprintf("%s/%s%s", c.BaseDir, c.Reponame, c.InfraRepoSuffix)
+	return fmt.Sprintf("%s%s%s", c.BaseDir, c.Reponame, c.InfraRepoSuffix)
 }
 
 func (c *Config) ImageTagLocation() string {

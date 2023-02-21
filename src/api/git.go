@@ -45,11 +45,17 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 
 	fromIndex := utils.IndexOf(c.FromBranch, c.Stages)
 	toIndex := utils.IndexOf(c.ToBranch, c.Stages)
+	wt, err := repo.Worktree()
+	utils.CheckIfError(err)
+	dir := wt.Filesystem.Root()
 
 	mergeable(c, fromIndex, toIndex)
 	cmd := exec.Command("git", "config", "--local", "user.email", c.Email)
+	cmd.Dir = dir
+
 	_ = execute(cmd)
 	cmd = exec.Command("git", "config", "--local", "user.name", c.Username)
+	cmd.Dir = dir
 	_ = execute(cmd)
 
 	for fromIndex < toIndex {
@@ -63,7 +69,16 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 // todo: über go implementierung lösen.
 func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch string) {
 	wt := checkout(repo, toBranch, false)
-	cmd := exec.Command("git", "merge", "--squash", fromBranch)
+	cmd := exec.Command("git", "branch", "--set-upstream-to", fmt.Sprintf("origin/%s", toBranch))
+	cmd.Dir = wt.Filesystem.Root()
+	_ = execute(cmd)
+
+	cmd = exec.Command("git", "pull", "origin", toBranch)
+	cmd.Dir = wt.Filesystem.Root()
+	_ = execute(cmd)
+
+	cmd = exec.Command("git", "merge", "--squash", fromBranch)
+	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
 }
