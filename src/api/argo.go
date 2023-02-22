@@ -214,6 +214,6 @@ func removeEnvironmentFromApplicationSet(c *model.Config, path string) {
 
 func copyApplicationSet(c *model.Config, filePath string) {
 	logger.Info("Copying ApplicationSet")
-	err := copy.Copy(filePath, fmt.Sprintf("%s/appliationset.yaml", c.BaseDir))
+	err := copy.Copy(filePath, fmt.Sprintf("%s/application.yaml", c.BaseDir))
 	utils.CheckIfError(err)
 }

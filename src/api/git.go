@@ -45,8 +45,18 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 
 	fromIndex := utils.IndexOf(c.FromBranch, c.Stages)
 	toIndex := utils.IndexOf(c.ToBranch, c.Stages)
+	wt, err := repo.Worktree()
+	utils.CheckIfError(err)
+	dir := wt.Filesystem.Root()
 
 	mergeable(c, fromIndex, toIndex)
+	cmd := exec.Command("git", "config", "--local", "user.email", c.Email)
+	cmd.Dir = dir
+
+	_ = execute(cmd)
+	cmd = exec.Command("git", "config", "--local", "user.name", c.Username)
+	cmd.Dir = dir
+	_ = execute(cmd)
 
 	for fromIndex < toIndex {
 		fromBranch := c.Stages[fromIndex]
@@ -59,11 +69,16 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 // todo: über go implementierung lösen.
 func merge(c *model.Config, repo *git.Repository, fromBranch string, toBranch string) {
 	wt := checkout(repo, toBranch, false)
-	cmd := exec.Command("git", "config", "--global", "user.email", c.Email)
+	cmd := exec.Command("git", "branch", "--set-upstream-to", fmt.Sprintf("origin/%s", toBranch))
+	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
-	cmd = exec.Command("git", "config", "--global", "user.name", c.Username)
+
+	cmd = exec.Command("git", "pull", "origin", toBranch)
+	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
+
 	cmd = exec.Command("git", "merge", "--squash", fromBranch)
+	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
 	commitAndPush(c, wt, repo, fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
 }
@@ -94,12 +109,12 @@ func ExtractGitInformation(c *model.Config) {
 
 	writeCommitInformation(c, "hash", commit.Hash.String()[0:7])
 	writeCommitInformation(c, "user", commit.Author.Name)
-	writeCommitInformation(c, "email", commit.Author.Email)
+	writeCommitInformation(c, "mail", commit.Author.Email)
 }
 
 func writeCommitInformation(c *model.Config, typ string, content string) {
 	logger.Debug("Writing commit information to file: %s", typ)
-	f, err := os.Create(c.BaseDir + "/commit_" + typ)
+	f, err := os.Create(c.BaseDir + "commit_" + typ)
 	utils.CheckIfError(err)
 	defer func(f *os.File) {
 		err := f.Close()
@@ -145,6 +160,11 @@ func commit(c *model.Config, wt *git.Worktree, message string) {
 		Committer: &object.Signature{
 			Name:  c.Username,
 			Email: c.Email,
+			When:  time.Now(),
+		},
+		Author: &object.Signature{
+			Name:  "argo-ci",
+			Email: "argo-ci@gepardec.com",
 			When:  time.Now(),
 		},
 	})
