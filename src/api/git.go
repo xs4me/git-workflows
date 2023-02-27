@@ -37,6 +37,8 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 		RefSpecs: []config.RefSpec{"refs/*:refs/*"},
 	})
 	utils.CheckIfError(err)
+
+	_ = checkout(repo, branch, false)
 	return repo
 }
 
