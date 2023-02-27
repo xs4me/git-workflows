@@ -84,19 +84,20 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 }
 
 func updateImageTag(c *model.Config, filepath string) {
-	nodes := parseYaml(filepath)
-	updated := updateVal(nodes.Content[0], c.ImageTagLocation(), c.ImageTag)
-	if !updated {
-		logger.Fatal("no update happend: %s not found", c.ImageTagLocation())
-	}
-
-	writeUpdatedYaml(nodes, filepath)
+	nodes := ParseYaml(filepath)
+	tagNode, err := FindNode(nodes.Content[0], c.ImageTagLocation())
+	utils.CheckIfError(err)
+	tagNode.Value = c.ImageTag
+	WriteYaml(nodes, filepath)
 }
 
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
-	logger.Info("Adding %s to ApplicationSet %s", fmt.Sprintf(ELEMENT, c.Env), path)
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(ADD_FORMAT, fmt.Sprintf(ELEMENT, c.Env)), path)
-	_ = execute(cmd)
+	logger.Info("Adding (%s, %s) to ApplicationSet %s", c.Env, "main", path)
+	nodes := ParseYaml(path)
+	envNode, err := FindNode(nodes.Content[0], "spec.generators.list.elements")
+	utils.CheckIfError(err)
+	envNode.Content = append(envNode.Content, NewEnvNode(c.Env, "main"))
+	WriteYaml(nodes, path)
 }
 
 func copyTemplateDir(wt *git.Worktree, c *model.Config, applicationset string) {
