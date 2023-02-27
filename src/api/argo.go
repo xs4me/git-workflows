@@ -83,9 +83,14 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 	}
 }
 
-func updateImageTag(c *model.Config, filePath string) {
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(UPDATE_FORMAT, c.ImageTagLocation(), c.ImageTag), filePath)
-	_ = execute(cmd)
+func updateImageTag(c *model.Config, filepath string) {
+	nodes := parseYaml(filepath)
+	updated := updateVal(nodes.Content[0], c.ImageTagLocation(), c.ImageTag)
+	if !updated {
+		logger.Fatal("no update happend: %s not found", c.ImageTagLocation())
+	}
+
+	writeUpdatedYaml(nodes, filepath)
 }
 
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
