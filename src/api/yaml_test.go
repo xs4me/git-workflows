@@ -78,6 +78,8 @@ func TestFindNodeNotFound(t *testing.T) {
 	}
 }
 
+// TODO TESTS für DeleteEnvFromApplicationset, FindClusterWithBranch
+
 func unmarshal(data string) (yaml.Node, error) {
 	var nodes yaml.Node
 	err := yaml.Unmarshal([]byte(data), &nodes)
