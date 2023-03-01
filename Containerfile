@@ -13,8 +13,6 @@ COPY src/ .
 
 RUN GOOOS=linux GOARCH=amd64 go build -o git-workflows -ldflags="-X main.version=$VERSION" .
 
-FROM golang:1.19-alpine as utils
-
 FROM alpine:3.15.6
 
 RUN apk add --no-cache ca-certificates curl wget bash git openssh

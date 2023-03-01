@@ -23,7 +23,7 @@ func deleteArgo(c *model.Config) {
 	c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 	if c.Development {
 		developmentMode(c)
-		c.Branch = "test"
+		c.Branch = "feature-gpx-602"
 		c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 	}
 	argoDeletePrerequisites(c)

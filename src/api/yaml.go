@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/utils"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -50,6 +51,7 @@ func DeleteEnvFromApplicationset(rootNode *yaml.Node, env string) error {
 	for idx, n := range envNode.Content {
 		for i := 0; i < len(n.Content)-1 && idxToDelete == -1; i += 2 {
 			if n.Content[i].Value == "cluster" && n.Content[i+1].Value == env {
+				logger.Debug("Found environment '%s' at index %d marked for deletion", env, idx)
 				idxToDelete = idx
 			}
 		}
@@ -59,7 +61,7 @@ func DeleteEnvFromApplicationset(rootNode *yaml.Node, env string) error {
 		return errors.New(fmt.Sprintf("could not find environment '%s'", env))
 	}
 
-	removeIndex(envNode.Content, idxToDelete)
+	envNode.Content = removeIndex(envNode.Content, idxToDelete)
 	return nil
 }
 
