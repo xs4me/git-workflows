@@ -20,11 +20,11 @@ func init() {
 }
 
 func deleteArgo(c *model.Config) {
-	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
+	c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 	if c.Development {
 		developmentMode(c)
 		c.Branch = "test"
-		c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
+		c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 	}
 	argoDeletePrerequisites(c)
 	repo := api.CloneRepo(c, "main", false)

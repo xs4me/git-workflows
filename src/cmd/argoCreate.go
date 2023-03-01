@@ -20,11 +20,11 @@ func init() {
 }
 
 func createArgo(c *model.Config) {
-	c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
+	c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 	if c.Development {
 		developmentMode(c)
 		c.Branch = "feature/new-branch"
-		c.Env = strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-")
+		c.Env = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(c.Branch, "/", "-"), "_", "-"))
 		c.FromBranch = "qa"
 	}
 	argoCreatePrerequisites(c)

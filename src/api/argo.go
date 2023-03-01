@@ -84,7 +84,7 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 
 func updateImageTag(c *model.Config, filepath string) {
 	nodes := ParseYaml(filepath)
-	tagNode, err := FindNode(nodes.Content[0], c.ImageTagLocation())
+	tagNode, err := FindNode(nodes.Content[0], c.TagLocation)
 	utils.CheckIfError(err)
 	tagNode.Value = c.ImageTag
 	WriteYaml(nodes, filepath)

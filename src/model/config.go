@@ -34,14 +34,6 @@ func (c *Config) InfrastructureClonePath() string {
 	return fmt.Sprintf("%s%s%s", c.BaseDir, c.Reponame, c.InfraRepoSuffix)
 }
 
-func (c *Config) ImageTagLocation() string {
-	if "" == c.TagLocation {
-		return fmt.Sprintf("%s.image.tag", c.Reponame)
-	} else {
-		return c.TagLocation
-	}
-}
-
 func (c *Config) IsPushEnabled() bool {
 	return !c.Development
 }
