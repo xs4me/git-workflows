@@ -85,9 +85,9 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 
 func updateImageTag(c *model.Config, filepath string) {
 	nodes := parseYaml(filepath)
-	updated := updateVal(nodes.Content[0], c.ImageTagLocation(), c.ImageTag)
+	updated := updateVal(nodes.Content[0], c.TagLocation, c.ImageTag)
 	if !updated {
-		logger.Fatal("no update happend: %s not found", c.ImageTagLocation())
+		logger.Fatal("no update happend: %s not found", c.TagLocation)
 	}
 
 	writeUpdatedYaml(nodes, filepath)
