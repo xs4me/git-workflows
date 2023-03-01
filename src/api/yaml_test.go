@@ -1,14 +1,12 @@
 package api
 
 import (
-	"bytes"
 	"gopkg.in/yaml.v3"
-	"strings"
 	"testing"
 )
 
 // region TESTDATA
-var inputYamlTagV1 = `demo-microservice:
+var inputYamlV1 = `demo-microservice:
   replicaCount: 1
   image:
     name: ghcr.io/gepaplexx/demo-microservice
@@ -18,112 +16,69 @@ var inputYamlTagV1 = `demo-microservice:
       containerPort: 8080
       protocol: TCP
 `
-var expectedYamlTagV1 = `demo-microservice:
-  replicaCount: 1
-  image:
-    name: ghcr.io/gepaplexx/demo-microservice
-    tag: "1234567"
-  ports:
-    - name: http
-      containerPort: 8080
-      protocol: TCP
-`
-var inputYamlTagV2 = `replicaCount: 1
-image:
-  name: ghcr.io/gepaplexx/demo-microservice
-  tag: "413b395"
-ports:
-  - name: http
-    containerPort: 8080
-    protocol: TCP
-`
-var expectedYamlTagV2 = `replicaCount: 1
-image:
-  name: ghcr.io/gepaplexx/demo-microservice
-  tag: "1234567"
-ports:
-  - name: http
-    containerPort: 8080
-    protocol: TCP
-`
 
-var inputYamlPort = `replicaCount: 1
+var inputYamlV2 = `replicaCount: 1
 image:
   name: ghcr.io/gepaplexx/demo-microservice
   tag: "413b395"
 ports:
   - name: http
     containerPort: 8080
-    protocol: TCP
-`
-var expectedYamlPort = `replicaCount: 1
-image:
-  name: ghcr.io/gepaplexx/demo-microservice
-  tag: "413b395"
-ports:
-  - name: http
-    containerPort: 1234567
     protocol: TCP
 `
 
 // endregion
 
-type updateValTest struct {
-	inputYaml, expectedYaml, yamlPath string
+type findNodeTest struct {
+	inputYaml, expectedValue, yamlPath string
 }
 
-var updateValTests = []updateValTest{
-	{inputYamlTagV1, expectedYamlTagV1, "demo-microservice.image.tag"},
-	{inputYamlTagV2, expectedYamlTagV2, "image.tag"},
-	{inputYamlPort, expectedYamlPort, "ports.containerPort"},
+var findNodeTests = []findNodeTest{
+	{inputYamlV1, "413b395", "demo-microservice.image.tag"},
+	{inputYamlV2, "413b395", "image.tag"},
+	{inputYamlV2, "8080", "ports.containerPort"},
 }
 
-func TestUpdateVal(t *testing.T) {
-	newVal := "1234567"
-	for _, test := range updateValTests {
+func TestFindNode(t *testing.T) {
+	for _, test := range findNodeTests {
 		nodes, err := unmarshal(test.inputYaml)
 		if err != nil {
 			t.Fatalf("failed to unmarshal: '%s'", test.inputYaml)
 		}
 
-		updated := updateVal(nodes.Content[0], test.yamlPath, newVal)
-		if !updated {
-			t.Fatal("yaml was not updated")
-		}
-
-		updatedYaml, err := marshal(nodes)
+		node, err := FindNode(nodes.Content[0], test.yamlPath)
 		if err != nil {
-			t.Fatal("failed to marshal data")
+			t.Fatalf("node %s not found", test.yamlPath)
 		}
 
-		if strings.Compare(test.expectedYaml, updatedYaml) != 0 {
-			t.Fatalf("updated yaml was not equal to expected yaml: expected: '%s', current: '%s'", test.expectedYaml, updatedYaml)
+		if node.Value != test.expectedValue {
+			t.Fatalf("expected value '%s' did not match '%s'", test.expectedValue, node.Value)
 		}
 	}
 }
 
-func TestUpdateValNotFound(t *testing.T) {
-	newVal := "doesNotMatter"
+func TestFindNodeNotFound(t *testing.T) {
 	yamlPath := "did.not.exist"
-	nodes, err := unmarshal(inputYamlTagV1)
+	nodes, err := unmarshal(inputYamlV1)
 	if err != nil {
-		t.Fatalf("failed to unmarshal: '%s'", inputYamlTagV1)
+		t.Fatalf("failed to unmarshal: '%s'", inputYamlV1)
 	}
 
-	updated := updateVal(nodes.Content[0], yamlPath, newVal)
-	if updated {
-		t.Fatalf("unexpected update, path: '%s', input: '%s'", inputYamlTagV1, yamlPath)
+	node, err := FindNode(nodes.Content[0], yamlPath)
+	if err == nil {
+		t.Fatal("error shouldn't be nil")
 	}
 
-	updatedYaml, err := marshal(nodes)
-	if err != nil {
-		t.Fatal("failed to marshal data")
+	if err.Error() != "element not found" {
+		t.Fatal("unexpected error message")
 	}
 
-	if strings.Compare(inputYamlTagV1, updatedYaml) != 0 {
-		t.Fatalf("input did not match output, shouldn't be updated. input: '%s', output: '%s'", inputYamlTagV1, updatedYaml)
+	if node != nil {
+		t.Fatal("node shouldn't be found, should be nil")
 	}
 }
+
+// TODO TESTS für DeleteEnvFromApplicationset, FindClusterWithBranch
 
 func unmarshal(data string) (yaml.Node, error) {
 	var nodes yaml.Node
@@ -133,16 +88,4 @@ func unmarshal(data string) (yaml.Node, error) {
 	}
 
 	return nodes, nil
-}
-
-func marshal(nodes yaml.Node) (string, error) {
-	var b bytes.Buffer
-	yamlEncoder := yaml.NewEncoder(&b)
-	yamlEncoder.SetIndent(2)
-	err := yamlEncoder.Encode(&nodes)
-	if err != nil {
-		return "", err
-	}
-
-	return string(b.Bytes()), nil
 }

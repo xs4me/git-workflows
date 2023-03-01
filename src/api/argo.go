@@ -8,7 +8,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/otiai10/copy"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -84,31 +83,33 @@ func updateAllStages(c *model.Config, wt *git.Worktree) {
 }
 
 func updateImageTag(c *model.Config, filepath string) {
-	nodes := parseYaml(filepath)
-	updated := updateVal(nodes.Content[0], c.TagLocation, c.ImageTag)
-	if !updated {
-		logger.Fatal("no update happend: %s not found", c.TagLocation)
-	}
-
-	writeUpdatedYaml(nodes, filepath)
+	nodes := ParseYaml(filepath)
+	tagNode, err := FindNode(nodes.Content[0], c.TagLocation)
+	utils.CheckIfError(err)
+	tagNode.Value = c.ImageTag
+	WriteYaml(nodes, filepath)
 }
 
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
-	logger.Info("Adding %s to ApplicationSet %s", fmt.Sprintf(ELEMENT, c.Env), path)
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(ADD_FORMAT, fmt.Sprintf(ELEMENT, c.Env)), path)
-	_ = execute(cmd)
+	logger.Info("Adding (%s, %s) to ApplicationSet %s", c.Env, "main", path)
+	nodes := ParseYaml(path)
+	envNode, err := FindNode(nodes.Content[0], AppsetEnvPath)
+	utils.CheckIfError(err)
+	envNode.Content = append(envNode.Content, NewEnvNode(c.Env, "main"))
+	WriteYaml(nodes, path)
 }
 
 func copyTemplateDir(wt *git.Worktree, c *model.Config, applicationset string) {
+	nodes := ParseYaml(applicationset)
 	fromBranch := strings.ReplaceAll(strings.ReplaceAll(c.FromBranch, "/", "-"), "_", "-")
-	cmd := exec.Command("yq", fmt.Sprintf(SOURCE_SELECTOR, fromBranch), applicationset)
-	res := execute(cmd)
+	res, err := FindClusterWithBranch(nodes.Content[0], fromBranch)
+	utils.CheckIfError(err)
 
 	sourceDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), res)
 	targetTemplateDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), c.Env)
 
 	logger.Info("Copying %s to %s", sourceDir, targetTemplateDir)
-	err := copy.Copy(sourceDir, targetTemplateDir)
+	err = copy.Copy(sourceDir, targetTemplateDir)
 	utils.CheckIfError(err)
 }
 
@@ -122,8 +123,10 @@ func deleteTemplateDir(wt *git.Worktree, c *model.Config) {
 
 func removeEnvironmentFromApplicationSet(c *model.Config, path string) {
 	logger.Info("Removing %s from ApplicationSet %s", c.Env, path)
-	cmd := exec.Command("yq", "-i", fmt.Sprintf(DELETE_FORMAT, c.Env), path)
-	_ = execute(cmd)
+	rootNode := ParseYaml(path)
+	err := DeleteEnvFromApplicationset(rootNode.Content[0], c.Env)
+	utils.CheckIfError(err)
+	WriteYaml(rootNode, path)
 }
 
 func copyApplicationSet(c *model.Config, filePath string) {
