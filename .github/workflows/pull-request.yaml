@@ -11,8 +11,7 @@ jobs:
         name: checkout
       - name: source-version
         id: source-version
-        run: |
-          echo "::set-output name=version::$(cat version)-devel"
+        run: echo "version=$(cat version)-devel" >> $GITHUB_OUTPUT
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: push-container-image
         with:
