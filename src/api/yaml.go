@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	AppsetEnvPath = ""
+	AppsetEnvPath = "spec.generators.list.elements"
 )
 
 func ParseYaml(filepath string) yaml.Node {
