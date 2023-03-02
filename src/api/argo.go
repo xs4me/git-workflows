@@ -12,14 +12,9 @@ import (
 )
 
 const (
-	ELEMENT                 = "{\"cluster\": \"%s\", \"url\": \"https://kubernetes.default.svc\", \"branch\": \"main\"}"
-	SOURCE_SELECTOR         = ".spec.generators[0].list.elements | map(select(.branch == \"%s\")) | .[0].cluster"
-	APPLICATIONSET_LOCATION = "%s/argocd/applicationset.yaml"
-	VALUES_LOCATION         = "%s/apps/env/%s/values.yaml"
-	UPDATE_FORMAT           = "with(%s; . = \"%s\" | . style=\"double\")"
-	ADD_FORMAT              = ".spec.generators[0].list.elements += %s"
-	DELETE_FORMAT           = "del(.spec.generators[0].list.elements[] | select(.cluster == \"%s\"))"
-	TEMPLATE_LOCATION       = "%s/apps/env/%s"
+	ApplicationsetLocation = "%s/argocd/applicationset.yaml"
+	ValuesLocation         = "%s/apps/env/%s/values.yaml"
+	TemplateLocation       = "%s/apps/env/%s"
 )
 
 func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
@@ -28,7 +23,7 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 
 	wt := checkout(repo, "main", false)
 
-	filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
+	filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), c.Env)
 	logger.Debug("Updating file: %s", filePath)
 	updateImageTag(c, filePath)
 
@@ -40,7 +35,7 @@ func ArgoCreateEnvironment(c *model.Config, repo *git.Repository) {
 	logger.Debug("Env: %s", c.Env)
 
 	wt := checkout(repo, "main", false)
-	filePath := fmt.Sprintf(APPLICATIONSET_LOCATION, wt.Filesystem.Root())
+	filePath := fmt.Sprintf(ApplicationsetLocation, wt.Filesystem.Root())
 	addEnvironmentToApplicationSet(c, filePath)
 	copyTemplateDir(wt, c, filePath)
 
@@ -55,7 +50,7 @@ func DeleteArgoEnvironment(c *model.Config, repo *git.Repository) {
 	protectEnvironments(c)
 
 	wt := checkout(repo, "main", false)
-	filePath := fmt.Sprintf(APPLICATIONSET_LOCATION, wt.Filesystem.Root())
+	filePath := fmt.Sprintf(ApplicationsetLocation, wt.Filesystem.Root())
 	removeEnvironmentFromApplicationSet(c, filePath)
 	deleteTemplateDir(wt, c)
 	copyApplicationSet(c, filePath)
@@ -73,7 +68,7 @@ func protectEnvironments(c *model.Config) {
 func updateAllStages(c *model.Config, wt *git.Worktree) {
 
 	for _, stage := range c.Stages {
-		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), stage)
+		filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), stage)
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
@@ -102,8 +97,8 @@ func copyTemplateDir(wt *git.Worktree, c *model.Config, applicationset string) {
 	res, err := FindClusterWithBranch(nodes.Content[0], fromBranch)
 	utils.CheckIfError(err)
 
-	sourceDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), res)
-	targetTemplateDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), c.Env)
+	sourceDir := fmt.Sprintf(TemplateLocation, wt.Filesystem.Root(), res)
+	targetTemplateDir := fmt.Sprintf(TemplateLocation, wt.Filesystem.Root(), c.Env)
 
 	logger.Info("Copying %s to %s", sourceDir, targetTemplateDir)
 	err = copy.Copy(sourceDir, targetTemplateDir)
@@ -111,7 +106,7 @@ func copyTemplateDir(wt *git.Worktree, c *model.Config, applicationset string) {
 }
 
 func deleteTemplateDir(wt *git.Worktree, c *model.Config) {
-	targetTemplateDir := fmt.Sprintf(TEMPLATE_LOCATION, wt.Filesystem.Root(), c.Env)
+	targetTemplateDir := fmt.Sprintf(TemplateLocation, wt.Filesystem.Root(), c.Env)
 
 	logger.Info("Deleting %s", targetTemplateDir)
 	err := os.RemoveAll(targetTemplateDir)
