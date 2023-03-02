@@ -65,13 +65,14 @@ func protectEnvironments(c *model.Config) {
 	}
 }
 
-func updateAllStages(c *model.Config, wt *git.Worktree) {
+func UpdateAllStages(c *model.Config, wt *git.Worktree, repo *git.Repository) {
 
 	for _, stage := range c.Stages {
 		filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), stage)
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
+	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
 }
 
 func updateImageTag(c *model.Config, filepath string) {

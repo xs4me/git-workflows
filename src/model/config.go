@@ -23,6 +23,7 @@ type Config struct {
 	FromBranch      string   `json:"from_branch"`
 	ToBranch        string   `json:"to_branch"`
 	Force           bool     `json:"force"`
+	ResourcesOnly   bool     `json:"resources_only"`
 }
 
 func (c *Config) ApplicationClonePath() string {
