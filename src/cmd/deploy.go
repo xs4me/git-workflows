@@ -4,6 +4,7 @@ import (
 	"gepaplexx/git-workflows/api"
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
+	"gepaplexx/git-workflows/utils"
 	"github.com/spf13/cobra"
 	"strings"
 )
@@ -30,6 +31,11 @@ func deploy(c *model.Config) {
 	deployPrerequisites(c)
 
 	repo := api.CloneRepo(c, c.FromBranch, false)
+	if !c.ResourcesOnly {
+		wt, err := repo.Worktree()
+		utils.CheckIfError(err)
+		api.UpdateAllStages(c, wt, repo)
+	}
 	api.DeployFromTo(c, repo)
 }
 

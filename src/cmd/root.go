@@ -52,6 +52,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.ToBranch, "to-branch", "", "Target brancht for deployments")
 
 	deleteCmd.PersistentFlags().BoolVarP(&Config.Force, "force", "f", false, "allows deletion of protected environments. Remember: with great power comes great responsibility!")
+
+	deployCmd.PersistentFlags().BoolVar(&Config.ResourcesOnly, "resources-only", false, "only deploy resources, no application")
 }
 
 func prerequisites(c *model.Config) {
