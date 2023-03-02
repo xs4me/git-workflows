@@ -28,13 +28,10 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 
 	wt := checkout(repo, "main", false)
 
-	if "main" == c.Env {
-		updateAllStages(c, wt)
-	} else {
-		filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
-		logger.Debug("Updating file: %s", filePath)
-		updateImageTag(c, filePath)
-	}
+	filePath := fmt.Sprintf(VALUES_LOCATION, wt.Filesystem.Root(), c.Env)
+	logger.Debug("Updating file: %s", filePath)
+	updateImageTag(c, filePath)
+
 	commitAndPush(c, wt, repo, fmt.Sprintf("updated image tag to %s", c.ImageTag))
 }
 
