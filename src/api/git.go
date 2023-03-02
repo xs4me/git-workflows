@@ -78,7 +78,7 @@ func merge(wt *git.Worktree, fromBranch string, toBranch string) {
 	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
 
-	cmd = exec.Command("git", "merge", fromBranch, "-m", fmt.Sprintf("Merge from %s to %s", fromBranch, toBranch))
+	cmd = exec.Command("git", "rebase", fromBranch, toBranch)
 	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
 
