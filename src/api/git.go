@@ -68,6 +68,7 @@ func DeployFromTo(c *model.Config, repo *git.Repository) {
 		fromBranch := c.Stages[fromIndex]
 		toBranch := c.Stages[fromIndex+1]
 		merge(wt, fromBranch, toBranch)
+		push(c, repo)
 		fromIndex++
 	}
 }
@@ -79,10 +80,6 @@ func merge(wt *git.Worktree, fromBranch string, toBranch string) {
 	_ = execute(cmd)
 
 	cmd = exec.Command("git", "rebase", fromBranch, toBranch)
-	cmd.Dir = wt.Filesystem.Root()
-	_ = execute(cmd)
-
-	cmd = exec.Command("git", "push")
 	cmd.Dir = wt.Filesystem.Root()
 	_ = execute(cmd)
 }

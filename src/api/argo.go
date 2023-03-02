@@ -133,24 +133,3 @@ func copyApplicationSet(c *model.Config, filePath string) {
 	err := copy.Copy(filePath, fmt.Sprintf("%s/application.yaml", c.BaseDir))
 	utils.CheckIfError(err)
 }
-
-/*
-{"app":"git-workflows","level":"info","message":"Development mode enabled. Using local configuration.","timestamp":"2023-03-02 12:34:45"}
-{"app":"git-workflows","level":"debug","message":"Checking if application repository is requested, appRepo: false","timestamp":"2023-03-02 12:34:45"}
-{"app":"git-workflows","level":"info","message":"Cloning Repository git@github.com:gepaplexx-demos/demo-microservice-ci.git, to ../../tmp/demo-microservice-ci","timestamp":"2023-03-02 12:34:45"}
-{"app":"git-workflows","level":"info","message":"Updating all stages to new image tag to prepare deployment","timestamp":"2023-03-02 12:34:48"}
-{"app":"git-workflows","level":"debug","message":"Updating file: ../../tmp/demo-microservice-ci/apps/env/main/values.yaml","timestamp":"2023-03-02 12:34:51"}
-{"app":"git-workflows","level":"debug","message":"Updating file: ../../tmp/demo-microservice-ci/apps/env/dev/values.yaml","timestamp":"2023-03-02 12:34:52"}
-{"app":"git-workflows","level":"debug","message":"Updating file: ../../tmp/demo-microservice-ci/apps/env/qa/values.yaml","timestamp":"2023-03-02 12:34:53"}
-{"app":"git-workflows","level":"debug","message":"Updating file: ../../tmp/demo-microservice-ci/apps/env/prod/values.yaml","timestamp":"2023-03-02 12:34:54"}
-{"app":"git-workflows","level":"info","message":"Committing and pushing changes: updated image tag to 748809b","timestamp":"2023-03-02 12:34:54"}
-{"app":"git-workflows","level":"debug","message":"Development mode is enabled. Skipping push to remote repository","timestamp":"2023-03-02 12:34:54"}
-{"app":"git-workflows","level":"info","message":"Deploying from main to prod","timestamp":"2023-03-02 12:34:55"}
-{"app":"git-workflows","level":"debug","message":"/usr/bin/git config --local user.email argo-ci@gepardec.com","timestamp":"2023-03-02 12:34:55"}
-{"app":"git-workflows","level":"debug","message":"/usr/bin/git config --local user.name argo-ci","timestamp":"2023-03-02 12:34:55"}
-{"app":"git-workflows","level":"debug","message":"/usr/bin/git branch --set-upstream-to origin/dev","timestamp":"2023-03-02 12:34:55"}
-{"app":"git-workflows","level":"debug","message":"/usr/bin/git pull origin dev","timestamp":"2023-03-02 12:34:55"}
-{"app":"git-workflows","level":"debug","message":"/usr/bin/git merge --squash main","timestamp":"2023-03-02 12:34:56"}
-{"app":"git-workflows","level":"fatal","message":"exit status 1","timestamp":"2023-03-02 12:34:56"}
-
-*/
