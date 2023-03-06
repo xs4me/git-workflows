@@ -73,7 +73,6 @@ func prerequisites(c *model.Config) {
 func developmentMode(c *model.Config) {
 	logger.Info("Development mode enabled. Using local configuration.")
 	c.BaseDir = "../../tmp/"
-	c.Extract = true
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
 	c.ImageTag = "abcdefg"
 	err := os.RemoveAll(c.BaseDir)

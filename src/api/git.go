@@ -9,7 +9,6 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -40,6 +39,10 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 
 	_ = checkout(repo, branch, false)
 	return repo
+}
+
+func GetWorkflowDescriptor(c *model.Config) {
+
 }
 
 func DeployFromTo(c *model.Config, repo *git.Repository) {
@@ -97,32 +100,6 @@ func mergeable(c *model.Config, fromIndex int, toIndex int) {
 		logger.Info("Nothing to do. exiting")
 		return
 	}
-}
-
-func ExtractGitInformation(c *model.Config) {
-	logger.Info("Extracting git information")
-	repo, err := git.PlainOpen(c.ApplicationClonePath())
-	utils.CheckIfError(err)
-
-	r, _ := repo.Head()
-	commit, err := repo.CommitObject(r.Hash())
-	utils.CheckIfError(err)
-
-	writeCommitInformation(c, "hash", commit.Hash.String()[0:7])
-	writeCommitInformation(c, "user", commit.Author.Name)
-	writeCommitInformation(c, "mail", commit.Author.Email)
-}
-
-func writeCommitInformation(c *model.Config, typ string, content string) {
-	logger.Debug("Writing commit information to file: %s", typ)
-	f, err := os.Create(c.BaseDir + "commit_" + typ)
-	utils.CheckIfError(err)
-	defer func(f *os.File) {
-		err := f.Close()
-		utils.CheckIfError(err)
-	}(f)
-	_, err = f.WriteString(content)
-	utils.CheckIfError(err)
 }
 
 func checkout(repo *git.Repository, branch string, create bool) *git.Worktree {

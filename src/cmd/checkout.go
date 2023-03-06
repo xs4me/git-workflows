@@ -28,7 +28,6 @@ func checkout(c *model.Config) {
 	checkoutPreRequisites(c)
 
 	api.CloneRepo(c, c.Branch, true)
-	api.ExtractGitInformation(c)
 }
 
 func checkoutPreRequisites(c *model.Config) {

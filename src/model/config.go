@@ -12,7 +12,6 @@ type Config struct {
 	Email           string   `json:"email"`
 	Reponame        string   `json:"reponame"`
 	Branch          string   `json:"branch"`
-	Extract         bool     `json:"extract"`
 	SshConfigDir    string   `json:"ssh_dir" `
 	RepoToken       string   `json:"repo_token"`
 	InfraRepoSuffix string   `json:"infra_repo_suffix"`
