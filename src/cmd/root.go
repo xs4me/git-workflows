@@ -54,6 +54,7 @@ func init() {
 	deleteCmd.PersistentFlags().BoolVarP(&Config.Force, "force", "f", false, "allows deletion of protected environments. Remember: with great power comes great responsibility!")
 
 	deployCmd.PersistentFlags().BoolVar(&Config.ResourcesOnly, "resources-only", false, "only deploy resources, no application")
+	descriptorCmd.PersistentFlags().StringVar(&Config.Descriptor, "descriptor", "workflow-descriptor.json", "full path and name to workflow descriptor")
 }
 
 func prerequisites(c *model.Config) {

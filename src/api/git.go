@@ -9,6 +9,7 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/otiai10/copy"
 	"os/exec"
 	"strings"
 	"time"
@@ -42,7 +43,17 @@ func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
 }
 
 func GetWorkflowDescriptor(c *model.Config) {
+	logger.Info("Getting Workflow Descriptor")
+	repo := CloneRepo(c, c.Branch, true)
 
+	wt, err := repo.Worktree()
+	utils.CheckIfError(err)
+
+	source := fmt.Sprintf("%s/%s", wt.Filesystem.Root(), c.Descriptor)
+	target := fmt.Sprintf("%s/%s", c.BaseDir, "workflow-descriptor.json")
+
+	err = copy.Copy(source, target)
+	utils.CheckIfError(err)
 }
 
 func DeployFromTo(c *model.Config, repo *git.Repository) {
