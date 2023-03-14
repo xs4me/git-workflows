@@ -41,7 +41,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&Config.GitUrl, "url", "u", "", "git url for the repository")
 	rootCmd.PersistentFlags().StringVar(&Config.Reponame, "name", "", "name of the repository")
 	rootCmd.PersistentFlags().StringVarP(&Config.Branch, "branch", "b", "main", "branch to checkout")
-	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/root/.ssh/", "directory for ssh known_hosts and private key")
+	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/workflow/.ssh/", "directory for ssh known_hosts and private key")
 	rootCmd.PersistentFlags().StringVar(&Config.RepoToken, "token", "", "token to access the repository")
 
 	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")

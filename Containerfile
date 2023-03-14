@@ -19,6 +19,12 @@ RUN apk add --no-cache ca-certificates curl wget bash git openssh
 
 COPY --from=BUILD /app/git-workflows /bin/git-workflows
 
-RUN chgrp -R 0 /bin/git-workflows && chmod -R g=u /bin/git-workflows
+RUN mkdir -p /workflow/ &&  \
+    chgrp -R 0 /workflow  && \
+    chmod -R g=u /workflow/ && \
+    chgrp -R 0 /bin/git-workflows &&  \
+    chmod -R g=u /bin/git-workflows
+
+USER workflow
 
 ENTRYPOINT [ "/bin/git-workflows" ]
