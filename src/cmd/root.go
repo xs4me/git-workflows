@@ -31,6 +31,8 @@ func Execute() {
 }
 
 func init() {
+	err := os.Setenv("SSH_KNOWN_HOSTS", "/workflow/.ssh/known_hosts")
+	utils.CheckIfError(err)
 
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
