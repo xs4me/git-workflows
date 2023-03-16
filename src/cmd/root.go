@@ -31,6 +31,8 @@ func Execute() {
 }
 
 func init() {
+	err := os.Setenv("SSH_KNOWN_HOSTS", "/workflow/.ssh/known_hosts")
+	utils.CheckIfError(err)
 
 	// global flags
 	rootCmd.PersistentFlags().BoolVar(&Config.Development, "dev", false, "enable development mode")
@@ -41,7 +43,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&Config.GitUrl, "url", "u", "", "git url for the repository")
 	rootCmd.PersistentFlags().StringVar(&Config.Reponame, "name", "", "name of the repository")
 	rootCmd.PersistentFlags().StringVarP(&Config.Branch, "branch", "b", "main", "branch to checkout")
-	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/root/.ssh/", "directory for ssh known_hosts and private key")
+	rootCmd.PersistentFlags().StringVar(&Config.SshConfigDir, "ssh-config-dir", "/workflow/.ssh/", "directory for ssh known_hosts and private key")
 	rootCmd.PersistentFlags().StringVar(&Config.RepoToken, "token", "", "token to access the repository")
 
 	rootCmd.PersistentFlags().StringVar(&Config.InfraRepoSuffix, "infra-repo-suffix", "-ci", "Suffix for infrastructure git repository")
@@ -49,7 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.TagLocation, "image-tag-location", "image.tag", "Location of image-tag in the infrastructure repository")
 	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "qa", "prod"}, "deployment stages")
 	rootCmd.PersistentFlags().StringVar(&Config.FromBranch, "from-branch", "main", "Base branch for argo-create | Branch from which to deploy from")
-	rootCmd.PersistentFlags().StringVar(&Config.ToBranch, "to-branch", "", "Target brancht for deployments")
+	rootCmd.PersistentFlags().StringVar(&Config.ToBranch, "to-branch", "", "Target branch for deployments")
 
 	updateCmd.PersistentFlags().StringVar(&Config.CommitRef, "commit-ref", "no reference supplied", "Reference to original commit that triggered the workflow")
 	deleteCmd.PersistentFlags().BoolVarP(&Config.Force, "force", "f", false, "allows deletion of protected environments. Remember: with great power comes great responsibility!")

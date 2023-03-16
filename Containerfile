@@ -17,8 +17,17 @@ FROM alpine:3.17.2
 
 RUN apk add --no-cache ca-certificates curl wget bash git openssh
 
+RUN addgroup -g 1000 -S workflow && \
+    adduser -u 1000 -S workflow -G workflow
+
 COPY --from=BUILD /app/git-workflows /bin/git-workflows
 
-RUN chgrp -R 0 /bin/git-workflows && chmod -R g=u /bin/git-workflows
+RUN mkdir -p /workflow/ &&  \
+    chgrp -R 0 /workflow  && \
+    chmod -R g=u /workflow/ && \
+    chgrp -R 0 /bin/git-workflows &&  \
+    chmod -R g=u /bin/git-workflows
+
+USER 1000
 
 ENTRYPOINT [ "/bin/git-workflows" ]
