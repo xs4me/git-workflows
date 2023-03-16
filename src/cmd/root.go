@@ -51,7 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.TagLocation, "image-tag-location", "image.tag", "Location of image-tag in the infrastructure repository")
 	rootCmd.PersistentFlags().StringSliceVar(&Config.Stages, "stages", []string{"main", "dev", "qa", "prod"}, "deployment stages")
 	rootCmd.PersistentFlags().StringVar(&Config.FromBranch, "from-branch", "main", "Base branch for argo-create | Branch from which to deploy from")
-	rootCmd.PersistentFlags().StringVar(&Config.ToBranch, "to-branch", "", "Target brancht for deployments")
+	rootCmd.PersistentFlags().StringVar(&Config.ToBranch, "to-branch", "", "Target branch for deployments")
 
 	deleteCmd.PersistentFlags().BoolVarP(&Config.Force, "force", "f", false, "allows deletion of protected environments. Remember: with great power comes great responsibility!")
 
