@@ -5,6 +5,7 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
+	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -52,10 +53,16 @@ func GetWorkflowDescriptor(c *model.Config) {
 
 	defDescriptor, err := os.ReadFile("templates/default-descriptor.json")
 	utils.CheckIfError(err)
-	actDescrriptor, err := wt.Filesystem.Open(c.Descriptor)
+	actDescriptor, err := wt.Filesystem.Open(c.Descriptor)
 	utils.CheckIfError(err)
+	defer func(actDescriptor billy.File) {
+		err := actDescriptor.Close()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}(actDescriptor)
 
-	mergedDescriptor, err := jsons.Merge(defDescriptor, actDescrriptor)
+	mergedDescriptor, err := jsons.Merge(defDescriptor, actDescriptor)
 	utils.CheckIfError(err)
 
 	err = os.WriteFile(fmt.Sprintf("%s/%s", c.BaseDir, "workflow-descriptor.json"), mergedDescriptor, 0644)
