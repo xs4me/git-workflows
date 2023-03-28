@@ -5,11 +5,13 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
+	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/otiai10/copy"
+	"github.com/qjebbs/go-jsons"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -49,10 +51,21 @@ func GetWorkflowDescriptor(c *model.Config) {
 	wt, err := repo.Worktree()
 	utils.CheckIfError(err)
 
-	source := fmt.Sprintf("%s/%s", wt.Filesystem.Root(), c.Descriptor)
-	target := fmt.Sprintf("%s/%s", c.BaseDir, "workflow-descriptor.json")
+	defDescriptor, err := os.ReadFile("templates/default-descriptor.json")
+	utils.CheckIfError(err)
+	actDescriptor, err := wt.Filesystem.Open(c.Descriptor)
+	utils.CheckIfError(err)
+	defer func(actDescriptor billy.File) {
+		err := actDescriptor.Close()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}(actDescriptor)
 
-	err = copy.Copy(source, target)
+	mergedDescriptor, err := jsons.Merge(defDescriptor, actDescriptor)
+	utils.CheckIfError(err)
+
+	err = os.WriteFile(fmt.Sprintf("%s/%s", c.BaseDir, "workflow-descriptor.json"), mergedDescriptor, 0644)
 	utils.CheckIfError(err)
 }
 

@@ -21,7 +21,6 @@ var descriptorCmd = &cobra.Command{
 func descriptor(c *model.Config) {
 	if c.Development {
 		developmentMode(c)
-		c.Branch = "main"
 	}
 
 	descriptorPreRequisites(c)
