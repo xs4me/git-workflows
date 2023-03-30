@@ -21,6 +21,7 @@ var descriptorCmd = &cobra.Command{
 func descriptor(c *model.Config) {
 	if c.Development {
 		developmentMode(c)
+		c.DefaultDescriptorLocation = "templates/default-descriptor.json"
 	}
 
 	descriptorPreRequisites(c)
@@ -30,5 +31,4 @@ func descriptor(c *model.Config) {
 
 func descriptorPreRequisites(c *model.Config) {
 	prerequisites(c)
-	c.DefaultDescriptorLocation = "templates/default-descriptor.json"
 }
