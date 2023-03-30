@@ -58,7 +58,7 @@ func init() {
 
 	deployCmd.PersistentFlags().BoolVar(&Config.ResourcesOnly, "resources-only", false, "only deploy resources, no application")
 	descriptorCmd.PersistentFlags().StringVar(&Config.Descriptor, "descriptor", "workflow-descriptor.json", "full path and name to workflow descriptor")
-	descriptorCmd.PersistentFlags().StringVar(&Config.DefaultDescriptorLocation, "default-descriptor-location", "/workflow/workflow-descriptor.json", "default location of workflow descriptor")
+	descriptorCmd.PersistentFlags().StringVar(&Config.DefaultDescriptorLocation, "default-descriptor-location", "/workflow/default-descriptor.json", "default location of workflow descriptor")
 }
 
 func prerequisites(c *model.Config) {
