@@ -30,4 +30,5 @@ func descriptor(c *model.Config) {
 
 func descriptorPreRequisites(c *model.Config) {
 	prerequisites(c)
+	c.DefaultDescriptorLocation = "templates/default-descriptor.json"
 }

@@ -51,7 +51,7 @@ func GetWorkflowDescriptor(c *model.Config) {
 	wt, err := repo.Worktree()
 	utils.CheckIfError(err)
 
-	defDescriptor, err := os.ReadFile("templates/default-descriptor.json")
+	defDescriptor, err := os.ReadFile(c.DefaultDescriptorLocation)
 	utils.CheckIfError(err)
 	actDescriptor, err := wt.Filesystem.Open(c.Descriptor)
 	utils.CheckIfError(err)
