@@ -20,14 +20,16 @@ RUN apk add --no-cache ca-certificates curl wget bash git openssh
 RUN addgroup -g 1000 -S workflow && \
     adduser -u 1000 -S workflow -G workflow
 
-RUN mkdir -p /workflow/ &&  \
-    chgrp -R 0 /workflow  && \
+RUN mkdir -p /workflow/
+
+COPY --from=BUILD /app/git-workflows /bin/git-workflows
+COPY src/templates/default-descriptor.json /workflow/default-descriptor.json
+
+RUN chgrp -R 0 /workflow  && \
     chmod -R g=u /workflow/ && \
     chgrp -R 0 /bin/git-workflows &&  \
     chmod -R g=u /bin/git-workflows
 
-COPY --from=BUILD /app/git-workflows /bin/git-workflows
-COPY src/templates/default-descriptor.json /workflow/default-descriptor.json
 
 USER 1000
 
