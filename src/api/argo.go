@@ -23,7 +23,7 @@ func UpdateArgoApplicationSet(c *model.Config, repo *git.Repository) {
 
 	wt := checkout(repo, "main", false)
 
-	filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), c.Env)
+	filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), c.Env) // TODO muss für Baukasten angepasst werden
 	logger.Debug("Updating file: %s", filePath)
 	updateImageTag(c, filePath)
 
@@ -68,13 +68,13 @@ func protectEnvironments(c *model.Config) {
 func UpdateAllStages(c *model.Config, wt *git.Worktree, repo *git.Repository) {
 	logger.Info("Updating all stages to new image tag to prepare deployment")
 
-	values := ParseYaml(fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), "main"))
+	values := ParseYaml(fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), "main")) // TODO muss für Baukasten angepasst werden
 	imagetagNode, err := FindNode(values.Content[0], c.TagLocation)
 	utils.CheckIfError(err)
 	c.ImageTag = imagetagNode.Value
 
 	for _, stage := range c.Stages {
-		filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), stage)
+		filePath := fmt.Sprintf(ValuesLocation, wt.Filesystem.Root(), stage) // TODO muss für Baukasten angepasst werden
 		logger.Debug("Updating file: %s", filePath)
 		updateImageTag(c, filePath)
 	}
