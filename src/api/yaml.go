@@ -134,9 +134,8 @@ func handleMappingNode(node *yaml.Node, lookingFor model.YamlPath, current *stri
 			filteredNode, err := filter(node.Content[i+1].Content, currentFilter)
 			if err != nil {
 				return nil
-			} else {
-				node = filteredNode
 			}
+			node = filteredNode
 		}
 		if *current == lookingFor.YamlPath() {
 			return node.Content[i+1]

@@ -48,7 +48,7 @@ func executeUpdateAllStages(test updateAllStagesTest, t *testing.T) {
 	wt, _ := repo.Worktree()
 	// replace current tag of main stage with whatever 'unitTestTag' holds.
 	err = prepareMainStage(
-		fmt.Sprintf("%s/apps/env/main/%s", wt.Filesystem.Root(), config.ImageTagFilename),
+		fmt.Sprintf("%s/apps/env/main/%s", wt.Filesystem.Root(), config.AppConfigFile),
 		config.TagLocation)
 	if err != nil {
 		t.Fatal("failed to prepare test, ", err)
@@ -59,7 +59,7 @@ func executeUpdateAllStages(test updateAllStagesTest, t *testing.T) {
 
 	// VALIDATE
 	for _, stage := range stages[1:] {
-		stageToValidatePath := fmt.Sprintf("%s/apps/env/%s/%s", wt.Filesystem.Root(), stage, config.ImageTagFilename)
+		stageToValidatePath := fmt.Sprintf("%s/apps/env/%s/%s", wt.Filesystem.Root(), stage, config.AppConfigFile)
 		rootNode := ParseYaml(stageToValidatePath)
 		tagNode, err := FindNode(rootNode.Content[0], config.TagLocation)
 		if err != nil {
@@ -131,7 +131,7 @@ func getDefaultConfig() model.Config {
 		RepoToken:                 "",
 		InfraRepoSuffix:           "-ci",
 		ImageTag:                  "",
-		ImageTagFilename:          "values.yaml",
+		AppConfigFile:             "values.yaml",
 		Stages:                    stages,
 		FromBranch:                "main",
 		ToBranch:                  "",
