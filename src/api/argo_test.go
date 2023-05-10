@@ -20,6 +20,7 @@ type updateAllStagesTest struct {
 
 var updateAllStagesTests = []updateAllStagesTest{
 	{"demo-microservice", "git@github.com:gepaplexx-demos/demo-microservice", "image.tag"},
+	// TODO add test for baukastensystem (needs repo where the baukasten is used)
 }
 
 func TestUpdateAllStages(t *testing.T) {
@@ -94,6 +95,7 @@ func cloneGitRepoPlainClone(c model.Config, testdir string) (*git.Repository, er
 
 	return repo, nil
 }
+
 func setupAuth(sshConfigDir string) (transport.AuthMethod, error) {
 	privateKeyfile := fmt.Sprintf("%s/id_rsa", sshConfigDir)
 	_, err := os.Stat(privateKeyfile)
