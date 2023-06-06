@@ -16,6 +16,7 @@ type Config struct {
 	RepoToken                 string   `json:"repo_token"`
 	InfraRepoSuffix           string   `json:"infra_repo_suffix"`
 	ImageTag                  string   `json:"image_tag"`
+	AppConfigFile             string   `json:"image_tag_file_name"`
 	TagLocation               string   `json:"tag_location"`
 	Stages                    []string `json:"stages"`
 	Env                       string   `json:"env"`

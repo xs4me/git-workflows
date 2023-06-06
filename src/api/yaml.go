@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gepaplexx/git-workflows/logger"
+	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -96,11 +97,12 @@ func NewEnvNode(env, branch string) *yaml.Node {
 }
 
 func FindNode(rootNode *yaml.Node, lookingFor string) (*yaml.Node, error) {
+	lookingForPath := model.ParseYamlPath(lookingFor)
 	current := ""
-	return find(rootNode, lookingFor, &current)
+	return find(rootNode, lookingForPath, &current)
 }
 
-func find(node *yaml.Node, lookingFor string, current *string) (*yaml.Node, error) {
+func find(node *yaml.Node, lookingFor model.YamlPath, current *string) (*yaml.Node, error) {
 	switch node.Kind {
 	case yaml.MappingNode:
 		{
@@ -116,7 +118,7 @@ func find(node *yaml.Node, lookingFor string, current *string) (*yaml.Node, erro
 		}
 	case yaml.ScalarNode:
 		{
-			if node.Value == lookingFor {
+			if node.Value == lookingFor.YamlPath() {
 				return node, nil
 			}
 		}
@@ -124,10 +126,18 @@ func find(node *yaml.Node, lookingFor string, current *string) (*yaml.Node, erro
 	return nil, errors.New("element not found")
 }
 
-func handleMappingNode(node *yaml.Node, lookingFor string, current *string) *yaml.Node {
+func handleMappingNode(node *yaml.Node, lookingFor model.YamlPath, current *string) *yaml.Node {
 	for i := 0; i < len(node.Content)-1; i += 2 {
 		appendIfValid(current, node.Content[i].Value, lookingFor)
-		if *current == lookingFor {
+		currentFilter := lookingFor.FilterFor(node.Content[i].Value)
+		if (currentFilter != model.Filter{}) {
+			filteredNode, err := filter(node.Content[i+1].Content, currentFilter)
+			if err != nil {
+				return nil
+			}
+			node = filteredNode
+		}
+		if *current == lookingFor.YamlPath() {
 			return node.Content[i+1]
 		}
 		found, err := find(node.Content[i+1], lookingFor, current)
@@ -139,7 +149,7 @@ func handleMappingNode(node *yaml.Node, lookingFor string, current *string) *yam
 	return nil
 }
 
-func handleSequenceNode(node *yaml.Node, lookingFor string, current *string) *yaml.Node {
+func handleSequenceNode(node *yaml.Node, lookingFor model.YamlPath, current *string) *yaml.Node {
 	for _, n := range node.Content {
 		found, err := find(n, lookingFor, current)
 		if err == nil {
@@ -149,14 +159,25 @@ func handleSequenceNode(node *yaml.Node, lookingFor string, current *string) *ya
 	return nil
 }
 
-func appendIfValid(current *string, appendix string, lookingFor string) {
+func filter(nodes []*yaml.Node, filter model.Filter) (*yaml.Node, error) {
+	for _, node := range nodes {
+		found := filter.Search(node.Content)
+		if found {
+			return node, nil
+		}
+	}
+
+	return nil, errors.New(fmt.Sprintf("no node with filter {key: %s, value: %s} found.", filter.Key, filter.Value))
+}
+
+func appendIfValid(current *string, appendix string, lookingFor model.YamlPath) {
 	newCurrent := *current
 	if *current != "" {
 		newCurrent += "."
 	}
 
 	newCurrent += appendix
-	if !strings.HasPrefix(lookingFor, newCurrent) {
+	if !strings.HasPrefix(lookingFor.YamlPath(), newCurrent) {
 		if *current != "" {
 			newCurrent = strings.TrimSuffix(newCurrent, "."+appendix)
 		} else {

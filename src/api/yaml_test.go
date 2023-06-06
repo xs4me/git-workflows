@@ -29,6 +29,40 @@ ports:
     protocol: TCP
 `
 
+var inputYamlBaukastenV1 = `apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: demo-microservice
+spec:
+  components:
+    - name: demo-microservice
+      type: deployment
+      properties:
+        image: "ghcr.io/gepaplexx/demo-microservice"
+        tag: "d821097"
+        ports:
+          - port: 8080
+            expose: true
+`
+
+var inputYamlBaukastenV2 = `apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: demo-microservice
+spec:
+  components:
+    - name: mega-backend
+      type: deployment
+      properties:
+        image: "ghcr.io/gepaplexx/mega-backend"
+        tag: "d821097"
+    - name: mega-frontend
+      type: deployment
+      properties:
+        image: "ghcr.io/gepaplexx/mega-frontend"
+        tag: "1234567"
+`
+
 var applicationSetYaml = `apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -171,6 +205,8 @@ var findNodeTests = []findNodeTest{
 	{inputYamlV1, "413b395", "demo-microservice.image.tag"},
 	{inputYamlV2, "413b395", "image.tag"},
 	{inputYamlV2, "8080", "ports.containerPort"},
+	{inputYamlBaukastenV2, "1234567", "spec.components[name=mega-frontend].properties.tag"},
+	{inputYamlBaukastenV2, "d821097", "spec.components[name=mega-backend].properties.tag"},
 }
 
 func TestFindNode(t *testing.T) {
