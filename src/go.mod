@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-git/go-billy/v5 v5.4.1
 	github.com/go-git/go-git/v5 v5.7.0
-	github.com/otiai10/copy v1.9.0
+	github.com/otiai10/copy v1.11.0
 	github.com/qjebbs/go-jsons v0.0.0-20221222033332-a534c5fc1c4c
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
