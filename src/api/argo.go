@@ -92,6 +92,13 @@ func updateImageTag(c *model.Config, filepath string) {
 func addEnvironmentToApplicationSet(c *model.Config, path string) {
 	logger.Info("Adding (%s, %s) to ApplicationSet %s", c.Env, "main", path)
 	nodes := ParseYaml(path)
+	existingNode, err := FindNode(nodes.Content[0], c.Env)
+	utils.CheckIfError(err)
+	if existingNode != nil {
+		logger.Info("Environment %s already exists in ApplicationSet %s. Stopping execution", c.Env, path)
+		os.Exit(0)
+	}
+
 	envNode, err := FindNode(nodes.Content[0], AppsetEnvPath)
 	utils.CheckIfError(err)
 	envNode.Content = append(envNode.Content, NewEnvNode(c.Env, "main"))

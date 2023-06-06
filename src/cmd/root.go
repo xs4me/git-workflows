@@ -79,8 +79,9 @@ func developmentMode(c *model.Config) {
 	logger.Info("Development mode enabled. Using local configuration.")
 	c.BaseDir = "../../tmp/"
 	c.SshConfigDir = os.Getenv("HOME") + "/.ssh/"
+	err := os.Setenv("SSH_KNOWN_HOSTS", os.Getenv("HOME")+"/.ssh/known_hosts")
 	c.ImageTag = "abcdefg"
-	err := os.RemoveAll(c.BaseDir)
+	err = os.RemoveAll(c.BaseDir)
 	logger.EnableDebug()
 	utils.CheckIfError(err)
 	c.GitUrl = "git@github.com:gepaplexx-demos/demo-microservice.git"
