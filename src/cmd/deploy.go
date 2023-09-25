@@ -31,7 +31,7 @@ func deploy(c *model.Config) {
 	deployPrerequisites(c)
 
 	repo := api.CloneRepo(c, c.FromBranch, false)
-	if !c.ResourcesOnly && c.FromBranch != "main" {
+	if !c.ResourcesOnly && c.FromBranch == "main" {
 		wt, err := repo.Worktree()
 		utils.CheckIfError(err)
 		api.UpdateAllStages(c, wt, repo)
