@@ -5,16 +5,17 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/qjebbs/go-jsons"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
 )
 
 func CloneRepo(c *model.Config, branch string, appRepo bool) *git.Repository {
@@ -165,8 +166,8 @@ func commit(c *model.Config, wt *git.Worktree, message string) {
 			When:  time.Now(),
 		},
 		Author: &object.Signature{
-			Name:  "argo-ci",
-			Email: "argo-ci@gepardec.com",
+			Name:  c.AuthorUsername,
+			Email: c.AuthorEmail,
 			When:  time.Now(),
 		},
 	})
