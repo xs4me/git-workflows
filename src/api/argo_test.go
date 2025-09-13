@@ -3,11 +3,12 @@ package api
 import (
 	"fmt"
 	"gepaplexx/git-workflows/model"
+	"os"
+	"testing"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	"os"
-	"testing"
 )
 
 const unitTestTag = "unittest"
@@ -124,6 +125,8 @@ func getDefaultConfig() model.Config {
 		BaseDir:                   "/mnt/out/",
 		Username:                  "argo-ci",
 		Email:                     "argo-ci@gepardec.com",
+		AuthorUsername:            "argo-ci",
+		AuthorEmail:               "argo-ci@gepardec.com",
 		GitUrl:                    "",
 		Reponame:                  "",
 		Branch:                    "main",

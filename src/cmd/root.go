@@ -7,8 +7,9 @@ import (
 	"gepaplexx/git-workflows/logger"
 	"gepaplexx/git-workflows/model"
 	"gepaplexx/git-workflows/utils"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var Version string
@@ -39,6 +40,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&Config.BaseDir, "path", "p", "/mnt/out/", "base directory for all operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Username, "commit-user", "argo-ci", "username for git operations")
 	rootCmd.PersistentFlags().StringVar(&Config.Email, "commit-email", "argo-ci@gepardec.com", "email for git operations")
+
+	rootCmd.PersistentFlags().StringVar(&Config.Username, "author-user", "argo-ci-xx", "username for git operations")
+	rootCmd.PersistentFlags().StringVar(&Config.Email, "author-email", "argo-ci-xx@gepardec.com", "email for git operations")
 
 	rootCmd.PersistentFlags().StringVarP(&Config.GitUrl, "url", "u", "", "git url for the repository")
 	rootCmd.PersistentFlags().StringVar(&Config.Reponame, "name", "", "name of the repository")

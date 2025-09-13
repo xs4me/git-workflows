@@ -10,6 +10,8 @@ type Config struct {
 	GitUrl                    string   `json:"git_url"`
 	Username                  string   `json:"username"`
 	Email                     string   `json:"email"`
+	AuthorUsername            string   `json:"author_username"`
+	AuthorEmail               string   `json:"author_email"`
 	Reponame                  string   `json:"reponame"`
 	Branch                    string   `json:"branch"`
 	SshConfigDir              string   `json:"ssh_dir" `
