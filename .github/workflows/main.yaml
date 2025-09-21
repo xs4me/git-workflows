@@ -21,6 +21,8 @@ jobs:
         with:
           image: git-workflows
           registry: ghcr.io
+          multiPlatform: true
+          platform: linux/amd64,linux/arm64
           username: ${{ github.repository }}
           password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: Containerfile
