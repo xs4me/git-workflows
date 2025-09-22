@@ -11,7 +11,7 @@ COPY src/go.mod src/go.sum ./
 RUN go mod verify && go mod download
 COPY src/ .
 
-RUN GOOOS=linux GOARCH=amd64 go build -o git-workflows -ldflags="-X main.version=$VERSION" .
+RUN GOOOS=$TARGETOS GOARCH=$TARGETARCH go build -o git-workflows -ldflags="-X main.version=$VERSION" .
 
 FROM alpine:3.22.1
 
