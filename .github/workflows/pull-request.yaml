@@ -21,12 +21,14 @@ jobs:
         with:
           image: git-workflows
           registry: ghcr.io
+          multiPlatform: true
+          platform: linux/amd64,linux/arm64
           username: ${{ github.repository }}
           password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: Containerfile
           directory: .
           addLatest: false
-          tags: ${{ steps.source-version.outputs.version }}-devel
+          tags: ${{ steps.source-version.outputs.version }}
           buildArgs: VERSION="${{ steps.source-version.outputs.version }}-$(git rev-parse --short HEAD)"
 #  notify:
 #    name: Slack Notifications
