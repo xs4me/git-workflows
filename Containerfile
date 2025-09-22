@@ -1,9 +1,7 @@
 ARG VERSION=latest
 
-FROM golang:1.25-alpine as BUILD
+FROM golang:1.25-alpine AS build
 ARG VERSION
-
-RUN apk add --no-cache gcc g++ make
 
 WORKDIR /app/
 
@@ -15,21 +13,26 @@ RUN GOOOS=$TARGETOS GOARCH=$TARGETARCH go build -o git-workflows -ldflags="-X ma
 
 FROM alpine:3.22.1
 
-RUN apk add --no-cache ca-certificates curl wget bash git openssh
+RUN apk add --no-cache  \
+    bash  \
+    ca-certificates  \
+    curl  \
+    git  \
+    openssh \
+    wget
 
 RUN addgroup -g 1000 -S workflow && \
     adduser -u 1000 -S workflow -G workflow
 
 RUN mkdir -p /workflow/
 
-COPY --from=BUILD /app/git-workflows /bin/git-workflows
+COPY --from=build /app/git-workflows /bin/git-workflows
 COPY src/templates/default-descriptor.json /workflow/default-descriptor.json
 
 RUN chgrp -R 0 /workflow  && \
     chmod -R g=u /workflow/ && \
     chgrp -R 0 /bin/git-workflows &&  \
     chmod -R g=u /bin/git-workflows
-
 
 USER 1000
 
