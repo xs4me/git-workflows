@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/go-git/go-billy/v5 v5.9.0
-	github.com/go-git/go-git/v5 v5.19.0
+	github.com/go-git/go-git/v5 v5.19.1
 	github.com/otiai10/copy v1.14.1
 	github.com/qjebbs/go-jsons v1.0.0-alpha.5
 	github.com/sirupsen/logrus v1.9.4
