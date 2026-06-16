@@ -11,7 +11,7 @@ COPY src/ .
 
 RUN GOOOS=$TARGETOS GOARCH=$TARGETARCH go build -o git-workflows -ldflags="-X main.version=$VERSION" .
 
-FROM alpine:3.24.0
+FROM alpine:3.24.1
 
 RUN apk add --no-cache  \
     bash  \
