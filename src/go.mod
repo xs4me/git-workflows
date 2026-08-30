@@ -7,7 +7,7 @@ require (
 	github.com/go-git/go-git/v5 v5.19.1
 	github.com/otiai10/copy v1.14.1
 	github.com/qjebbs/go-jsons v1.0.0-alpha.6
-	github.com/sirupsen/logrus v1.9.4
+	github.com/sirupsen/logrus v1.10.2
 	github.com/spf13/cobra v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -33,7 +33,7 @@ require (
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
+	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
