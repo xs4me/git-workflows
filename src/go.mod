@@ -3,7 +3,7 @@ module gepaplexx/git-workflows
 go 1.25.0
 
 require (
-	github.com/go-git/go-billy/v5 v5.9.1
+	github.com/go-git/go-billy/v5 v5.9.2
 	github.com/go-git/go-git/v5 v5.19.2
 	github.com/otiai10/copy v1.14.1
 	github.com/qjebbs/go-jsons v1.0.0-alpha.6

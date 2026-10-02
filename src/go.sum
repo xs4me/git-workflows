@@ -68,6 +68,8 @@ github.com/go-git/go-billy/v5 v5.9.0 h1:jItGXszUDRtR/AlferWPTMN4j38BQ88XnXKbilmm
 github.com/go-git/go-billy/v5 v5.9.0/go.mod h1:jCnQMLj9eUgGU7+ludSTYoZL/GGmii14RxKFj7ROgHw=
 github.com/go-git/go-billy/v5 v5.9.1 h1:8U73XiOTfINdItHVa6z4Gv7ToObcZ6grkqQbLryLCdA=
 github.com/go-git/go-billy/v5 v5.9.1/go.mod h1:ExsU+jcGwXTBOnyilvAnEM1wug1IxHr4yP2ZXsNRtV0=
+github.com/go-git/go-billy/v5 v5.9.2 h1:OXFSRyz4g20upsGDJgQG9Bak1l/ZEv8GHVYB52O71sE=
+github.com/go-git/go-billy/v5 v5.9.2/go.mod h1:ExsU+jcGwXTBOnyilvAnEM1wug1IxHr4yP2ZXsNRtV0=
 github.com/go-git/go-git-fixtures/v4 v4.3.1 h1:y5z6dd3qi8Hl+stezc8p3JxDkoTRqMAlKnXHuzrfjTQ=
 github.com/go-git/go-git-fixtures/v4 v4.3.1/go.mod h1:8LHG1a3SRW71ettAD/jW13h8c6AqjVSeL11RAdgaqpo=
 github.com/go-git/go-git/v5 v5.6.1 h1:q4ZRqQl4pR/ZJHc1L5CFjGA1a10u76aV1iC+nh+bHsk=
